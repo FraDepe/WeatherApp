@@ -30,7 +30,6 @@ class MainPage(Screen):
         req = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
         req.wait()
         print(req.result)
-        print(req.result['weather'][0]['icon'])
         self.request = req
         forecast_page = self.manager.get_screen('forecast')
         forecast_page.request = req
