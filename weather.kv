@@ -1,0 +1,100 @@
+#:kivy 1.0.9
+
+PageManager:
+    MainPage:
+    ForecastPage:
+
+
+<MainPage>:
+    name: 'main' 
+    location: location
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.size
+        spacing: 10
+        padding: 10
+        canvas.before:
+            Color:
+                rgba: (1, 209/255,102/255,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Image:
+            source: 'media/world.png'
+        MDIconButton:
+            icon: 'media/mic2.png'
+            icon_size: 75
+            size_hint: (0.25, 0.2)
+            pos_hint: {'center_x': 0.5}
+            on_press: root.listenToSearch()
+        TextInput:
+            id: location
+            size_hint: (1, 0.20)
+            font_size: 35
+            multiline: False
+            padding: 20
+            halign: 'center'
+        MDRaisedButton:
+            text: 'Search'
+            size_hint: (0.80, 0.15)
+            pos_hint: {'center_x': 0.5}
+            font_size: 25
+            disabled: True if root.location.text == '' else False
+            on_press: 
+                if root.location.text != '': app.root.current = 'forecast' 
+                else: pass
+                if root.location.text != '': root.manager.transition.direction = "left"
+                else: pass
+                if root.location.text != '': root.search() 
+                else: pass
+            
+
+<ForecastPage>:
+    name: 'forecast'
+    MDBoxLayout:
+        orientation: 'vertical'
+        
+        MDTopAppBar:
+            title: '5 days forecast'
+        MDTabs:
+            background_color: (42/255, 157/255, 143/255, 1)
+            indicator_color: (56/255, 21/255, 63/255, 1)
+            Tab:
+                id: first_day
+                title: root.getDay(0)
+            Tab:
+                id: second_day
+                title: root.getDay(1)
+            Tab:
+                id: third_day
+                title: root.getDay(2)
+            Tab:
+                id: fourth_day
+                title: root.getDay(3)
+            Tab:
+                id: fifth_day
+                title: root.getDay(4)
+        #Image:
+        #    source: root.getIcon()
+
+        #RoundedButton:
+        #    text: root.getToday(1)
+        #    size_hint: (0.9, 0.9)
+        #    pos_hint: {'center_x': 0.5}
+        #    on_press: print("Funziono")
+        
+        
+
+
+
+<RoundedButton@Button>:
+    background_color: (0,0,0,0)
+    background_normal: ''
+    canvas.before:
+        Color:
+            rgba: (234/255, 123/255, 65/255, 1)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [35]

@@ -1,0 +1,14 @@
+Spellchecker per correggere eventuali errori
+Sviluppare lo scheletro della pagina ForecastPage
+Vedere come gestire dati dinamici 
+Accordion per mostrare più informazioni
+Gestire i nomi sbagliati delle città
+
+Una volta premuto il tasto Search si apre una pagina con le previsioni della giornata. In basso ci sono
+dei pulsanti per andare alle previsioni dei giorni successivi
+
+
+RICORDA IL COMANDO VOCALE
+
+INSTALLA KIVYMD NELL'ABIENTE VIRTUALE (FEDORA)
+INSTALLA GEOPY SU FEDORA
