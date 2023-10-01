@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.network.urlrequest import UrlRequest
 from kivy.core.window import Window
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivymd.app import MDApp
@@ -13,36 +13,36 @@ from geopy.geocoders import Nominatim
 import json
 
 
-class Tab(MDFloatLayout, MDTabsBase):
-    pass
-
 
 class MainPage(Screen):
     
     location = ObjectProperty(None)
     request = None
+    city = ""
 
     def search(self):
-        city = self.location.text
-        gn = Nominatim(user_agent='WeatherApp')
-        coordinates = gn.geocode(city)
-        print(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
-        req = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
-        req.wait()
-        print(req.result)
-        self.request = req
-        forecast_page = self.manager.get_screen('forecast')
-        forecast_page.request = req
+        self.city = self.location.text
         self.location.text = ""
-        return req
 
     def listenToSearch(self):
         pass
 
 class ForecastPage(Screen):
 
-    def getWeather(self):
-        pass
+    city = StringProperty()
+
+    def on_enter(self):
+        main_page = self.manager.get_screen('main')
+        self.city = main_page.city
+        gn = Nominatim(user_agent='WeatherApp')
+        coordinates = gn.geocode(self.city)
+        print(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
+        req = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
+        req.wait()
+        print(req.result)
+        self.request = req
+        return req
+        
 
     def getIcon(self):
         main_page = self.manager.get_screen('main')
@@ -70,6 +70,15 @@ class WeatherApp(MDApp):
         kv = Builder.load_file('weather.kv')
         Window.size = (450,800)
         return kv
+
+
+
+
+
+
+class Tab(MDFloatLayout, MDTabsBase):
+    pass
+
 
 
 if __name__ == '__main__':
