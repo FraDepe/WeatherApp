@@ -5,10 +5,10 @@ PageManager:
     ForecastPage:
 
 
+
 <MainPage>:
     id: main_page
     name: 'main' 
-    location: location
 
     BoxLayout:
         orientation: 'vertical'
@@ -23,71 +23,55 @@ PageManager:
                 size: self.size
         Image:
             source: 'media/world.png'
-        MDIconButton:
-            icon: 'media/mic2.png'
-            icon_size: 75
-            size_hint: (0.25, 0.2)
-            pos_hint: {'center_x': 0.5}
-            on_press: root.listenToSearch()
-        TextInput:
-            id: location
-            size_hint: (1, 0.20)
-            font_size: 35
-            multiline: False
-            padding: 20
-            halign: 'center'
-        MDRaisedButton:
-            text: 'Search'
-            size_hint: (0.80, 0.15)
-            pos_hint: {'center_x': 0.5}
-            font_size: 25
-            disabled: True if root.location.text == '' else False
-            on_press: 
-                if root.location.text != '': app.root.current = 'forecast' 
-                else: pass
-                if root.location.text != '': root.manager.transition.direction = "left"
-                else: pass
-                if root.location.text != '': root.search() 
-                else: pass
+            size_hint: (1, 0.6)
+        Button:
+            id: microphone
+            background_normal: 'media/mic2.png'
+            background_down: 'media/mic_pressed.png'
+            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence
             
+
 
 <ForecastPage>:
     name: 'forecast'
     
     MDBoxLayout:
         orientation: 'vertical'
-        
+        md_bg_color: 119/255, 239/255, 199/255, 1
         MDTopAppBar:
-            title: '5 days forecast'
-        MDTabs:
-            background_color: (42/255, 157/255, 143/255, 1)
-            indicator_color: (56/255, 21/255, 63/255, 1)
-            Tab:
-                id: first_day
-                title: root.getDay(0)
-            Tab:
-                id: second_day
-                title: root.getDay(1)
-            Tab:
-                id: third_day
-                title: root.getDay(2)
-            Tab:
-                id: fourth_day
-                title: root.getDay(3)
-            Tab:
-                id: fifth_day
-                title: root.getDay(4)
-        #Image:
-        #    source: root.getIcon()
+            title: '5 Days Forecast'
+            elevation: 3
+            left_action_items: [ ["arrow-left", lambda x: root.goBack()] ]
+        Image:
+            id: today_icon
+            source: "media/default.png"
+            size_hint: (0.8, 0.55)
+            pos_hint: {'center_x': 0.5}
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            canvas.before:
+                Color:
+                    rgba: (119/255, 239/255, 199/255, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ScrollView:
+                GridLayout:
+                    id: forecast_container
+                    cols: 1
+                    size_hint_y: None
+                    height: self.minimum_height
 
-        #RoundedButton:
-        #    text: root.getToday(1)
-        #    size_hint: (0.9, 0.9)
-        #    pos_hint: {'center_x': 0.5}
-        #    on_press: print("Funziono")
         
         
 
+<HourlyForecast>:
+    size_hint: 1, None
+    adaptive_height: True
+    MDLabel:
+        id: prova
+        
 
 
 <RoundedButton@Button>:
