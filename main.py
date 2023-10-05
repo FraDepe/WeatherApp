@@ -6,21 +6,14 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.metrics import dp
-from kivymd.uix.tab.tab import MDTabsBase, MDTabs
+from kivymd.uix.tab.tab import MDTabsBase
 from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.gridlayout import MDGridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivymd.uix.list import OneLineListItem 
+from kivymd.uix.gridlayout import MDGridLayout 
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
 from geopy.geocoders import Nominatim
-import json
 import speech_recognition
 import pyttsx3
-
-
-from kivy import kivy_data_dir
-
 
 
 class MainPage(Screen):
@@ -60,25 +53,35 @@ class ForecastPage(Screen):
     request_today = None
     request_forecast = None
     sentence = ""
+    frase = 'suca'
 
     def on_enter(self):
-        #analisi della frase per capire se eseguire getToday o getForecast
-        self.getToday()
-        
-    def getToday(self):
-        print(self.sentence)
+
         gn = Nominatim(user_agent='WeatherApp') # Oppure usare l'API di OpenWeather
         coordinates = gn.geocode(self.sentence)
-        print(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
+
         req_today = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
         req_forecast = UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
+
         req_today.wait()
         req_forecast.wait()
-        self.ids['today_icon'].source = self.getIcon(req_today.result['weather'][0]['description'])
-        #print(req.result)
+
         self.request_today = req_today
         self.request_forecast = req_forecast
-        for x in req_forecast.result['list']:
+
+        #analisi della frase per capire se eseguire getToday o getForecast
+        self.responseToAudio()
+
+        self.getToday(req_today.result, req_forecast.result)
+        return
+        
+
+    def getToday(self, result_today, result_forecast):
+        print(self.sentence)
+
+        self.ids['today_icon'].source = self.getIcon(result_today['weather'][0]['description'])
+        
+        for x in result_forecast['list']:
             info = HourlyForecast()
             panel = MDExpansionPanel(
                 content = info,
@@ -93,13 +96,24 @@ class ForecastPage(Screen):
             info.ids['press'].text = str(x['main']['pressure']) + " hPa"
             info.ids['wind'].text = str(round(x['wind']['speed']*3.6)) + " Km/h"
             self.ids.forecast_container.add_widget(panel)
+        return
 
-    def getForecast(self):
-        pass
+
+    def responseToAudio(self):
+        engine = pyttsx3.init()
+        #rate = engine.getProperty('rate')
+        #engine.setProperty('rate', rate-50)
+        frase = self.frase
+        engine.say(frase)
+        #engine.say("suca")
+        engine.runAndWait()
+        engine.stop()
+        return
 
     def goBack(self):
         self.manager.current = 'main'
         self.manager.transition.direction = 'right'
+        return
 
     def getIcon(self, descritpion):
         return "media/alternative/" + descritpion.replace(" ", "_") + ".png"
