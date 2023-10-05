@@ -69,9 +69,56 @@ PageManager:
 <HourlyForecast>:
     size_hint: 1, None
     adaptive_height: True
-    MDLabel:
-        id: prova
+    cols: 2
+    MDBoxLayout:
+        orientation: 'horizontal'
+        Image:
+            source: 'media/alternative/temp.png'
+            size_hint_y: None
+            size_hint_x: 0.6
+            width: self.parent.width*0.5
+            height: self.parent.height*0.5
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDLabel:
+            id: temp  
         
+    MDBoxLayout:
+        orientation: 'horizontal'
+        Image:
+            source: 'media/alternative/humidity.png'
+            size_hint_y: None
+            size_hint_x: 0.6
+            width: self.parent.width*0.5
+            height: self.parent.height*0.5
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDLabel:
+            id: humid
+    
+    MDBoxLayout:
+        orientation: 'horizontal'
+        Image:
+            source: 'media/alternative/pressure.png'
+            size_hint_y: None
+            size_hint_x: 0.6
+            width: self.parent.width*0.5
+            height: self.parent.height*0.5
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDLabel:
+            id: press
+        
+    MDBoxLayout:
+        orientation: 'horizontal'
+        Image:
+            source: 'media/alternative/wind.png'
+            size_hint_y: None
+            size_hint_x: 0.6
+            width: self.parent.width*0.5
+            height: self.parent.height*0.5
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDLabel:
+            id: wind
+
+
 
 
 <RoundedButton@Button>:

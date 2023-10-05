@@ -8,7 +8,8 @@ from kivymd.app import MDApp
 from kivy.metrics import dp
 from kivymd.uix.tab.tab import MDTabsBase, MDTabs
 from kivymd.uix.floatlayout import MDFloatLayout
-from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.gridlayout import MDGridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.list import OneLineListItem 
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
@@ -63,7 +64,6 @@ class ForecastPage(Screen):
     def on_enter(self):
         #analisi della frase per capire se eseguire getToday o getForecast
         self.getToday()
-        print(kivy_data_dir)
         
     def getToday(self):
         print(self.sentence)
@@ -75,23 +75,23 @@ class ForecastPage(Screen):
         req_today.wait()
         req_forecast.wait()
         self.ids['today_icon'].source = self.getIcon(req_today.result['weather'][0]['description'])
-        #self.ids['weather_info'].add_widget(
-        #    OneLineListItem(
-        #    text = req.result['weather'][0]['description'] + str(req.result['main']['temp'])
-        #    )
-        #)
         #print(req.result)
         self.request_today = req_today
         self.request_forecast = req_forecast
         for x in req_forecast.result['list']:
-            print(x['dt'])
+            info = HourlyForecast()
             panel = MDExpansionPanel(
-                content = HourlyForecast(),
+                content = info,
+                
                 icon = self.getIcon(x['weather'][0]['description']),
                 panel_cls = MDExpansionPanelOneLine(
                     text = self.getDay(x['dt'])
-                )
+                ),
             )
+            info.ids['humid'].text = str(x['main']['humidity']) + " %"
+            info.ids['temp'].text = str(round(x['main']['temp'])) + " °C"
+            info.ids['press'].text = str(x['main']['pressure']) + " hPa"
+            info.ids['wind'].text = str(round(x['wind']['speed']*3.6)) + " Km/h"
             self.ids.forecast_container.add_widget(panel)
 
     def getForecast(self):
@@ -102,7 +102,7 @@ class ForecastPage(Screen):
         self.manager.transition.direction = 'right'
 
     def getIcon(self, descritpion):
-        return "media/" + descritpion.replace(" ", "_") + ".png"
+        return "media/alternative/" + descritpion.replace(" ", "_") + ".png"
 
     def getDay(self,timestamp):
         day = datetime.datetime.fromtimestamp(timestamp).strftime("%A")
@@ -113,7 +113,7 @@ class ForecastPage(Screen):
     
 
 
-class HourlyForecast(MDBoxLayout):
+class HourlyForecast(MDGridLayout):
     pass
 
 
@@ -128,9 +128,9 @@ class PageManager(ScreenManager):
 class WeatherApp(MDApp):
     api_key = "c0b583a8bb8b03e64dd0e16bccda95bf"
     def build(self):
-        kv = Builder.load_file('weather.kv')
+        #kv = Builder.load_file('weather.kv')
         Window.size = (450,800)
-        return kv
+        #return kv
 
 
 
