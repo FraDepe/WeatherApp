@@ -1,19 +1,10 @@
-Spellchecker per correggere eventuali errori
-Sviluppare lo scheletro della pagina ForecastPage
-Vedere come gestire dati dinamici 
-Accordion per mostrare più informazioni
-Gestire i nomi sbagliati delle città
-Gestire la lingua (inglese-italiano)
 
-Una volta premuto il tasto Search si apre una pagina con le previsioni della giornata. In basso ci sono
-dei pulsanti per andare alle previsioni dei giorni successivi
+Gestire la lingua (inglese-italiano)
 
 Analisi della frase per capire se si parla del presente o del futuro
 
-Analisi della frase per estrarre informazioni sul giorno richiesto e sull'orario se specificato 
+Analisi della frase per estrarre informazioni sulla località e giorno richiesto e sull'orario se specificato 
 
 spacy nltk
 
 RICORDA IL COMANDO VOCALE
-
-INSTALLA KIVYMD, GEOPY, SPEECHRECOGNITION, PYTTSX3 NELL'ABIENTE VIRTUALE (FEDORA)

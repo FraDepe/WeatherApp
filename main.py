@@ -15,7 +15,9 @@ from geopy.geocoders import Nominatim
 import speech_recognition
 import pyttsx3
 
+
 ##############################################################################################
+
 
 class MainPage(Screen):
     
@@ -51,6 +53,7 @@ class MainPage(Screen):
 
 ##############################################################################################
 
+
 class ForecastPage(Screen):
 
     city = StringProperty()
@@ -62,7 +65,9 @@ class ForecastPage(Screen):
     def on_enter(self):
 
         gn = Nominatim(user_agent='WeatherApp') # Oppure usare l'API di OpenWeather
-        coordinates = gn.geocode(self.sentence)
+        
+        coordinates = gn.geocode(self.sentence) # Nella frase potrebbe non esserci una specifica
+                                                # località (allora uso posizione del gps tramite plyer)
 
         req_today = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
         req_forecast = UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
@@ -129,6 +134,7 @@ class ForecastPage(Screen):
         else:
             return day + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
     
+
 ##############################################################################################
 
 
@@ -136,12 +142,14 @@ class HourlyForecast(MDGridLayout):
     pass
 
 
+##############################################################################################
+
 
 class PageManager(ScreenManager):
     pass
 
 
-
+##############################################################################################
 
 
 class WeatherApp(MDApp):
@@ -152,12 +160,7 @@ class WeatherApp(MDApp):
         #return kv
 
 
-
-
-class Tab(MDFloatLayout, MDTabsBase):
-    pass
-
-
+##############################################################################################
 
 
 if __name__ == '__main__':
