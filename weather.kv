@@ -34,34 +34,38 @@ PageManager:
 
 <ForecastPage>:
     name: 'forecast'
-    
-    MDBoxLayout:
-        orientation: 'vertical'
-        md_bg_color: 119/255, 239/255, 199/255, 1
-        MDTopAppBar:
-            title: '5 Days Forecast'
-            elevation: 3
-            left_action_items: [ ["arrow-left", lambda x: root.goBack()] ]
-        Image:
-            id: today_icon
-            source: "media/default.png"
-            size_hint: (0.8, 0.55)
-            pos_hint: {'center_x': 0.5}
+    MDFloatLayout:
+        Button:
+            text:""
+            background_color: 0,0,0,0
+            on_touch_down: root.responseToAudio()
         MDBoxLayout:
             orientation: 'vertical'
-            padding: 20
-            canvas.before:
-                Color:
-                    rgba: (119/255, 239/255, 199/255, 1)
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-            ScrollView:
-                GridLayout:
-                    id: forecast_container
-                    cols: 1
-                    size_hint_y: None
-                    height: self.minimum_height
+            md_bg_color: 119/255, 239/255, 199/255, 1
+            MDTopAppBar:
+                title: '5 Days Forecast'
+                elevation: 3
+                left_action_items: [ ["arrow-left", lambda x: root.goBack()] ]
+            Image:
+                id: today_icon
+                source: "media/default.png"
+                size_hint: (0.8, 0.55)
+                pos_hint: {'center_x': 0.5}
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: 20
+                canvas.before:
+                    Color:
+                        rgba: (119/255, 239/255, 199/255, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                ScrollView:
+                    GridLayout:
+                        id: forecast_container
+                        cols: 1
+                        size_hint_y: None
+                        height: self.minimum_height
 
         
         

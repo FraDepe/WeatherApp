@@ -15,6 +15,7 @@ from geopy.geocoders import Nominatim
 import speech_recognition
 import pyttsx3
 
+##############################################################################################
 
 class MainPage(Screen):
     
@@ -25,6 +26,9 @@ class MainPage(Screen):
 
     def listenToSearch(self):
         print("Comincio ad ascoltare")
+        #engine = pyttsx3.init()
+        #engine.say("Ascolto")
+        #engine.runAndWait()
         self.ids['microphone'].background_normal = 'media/mic_listening.png' # NON CAMBIA
         try:
             with speech_recognition.Microphone() as mic:
@@ -45,7 +49,7 @@ class MainPage(Screen):
         self.ids['microphone'].background_normal = 'media/mic2.png' # NON CAMBIA
 
 
-
+##############################################################################################
 
 class ForecastPage(Screen):
 
@@ -70,9 +74,8 @@ class ForecastPage(Screen):
         self.request_forecast = req_forecast
 
         #analisi della frase per capire se eseguire getToday o getForecast
-        self.responseToAudio()
-
         self.getToday(req_today.result, req_forecast.result)
+        #self.responseToAudio()
         return
         
 
@@ -104,16 +107,17 @@ class ForecastPage(Screen):
         #rate = engine.getProperty('rate')
         #engine.setProperty('rate', rate-50)
         frase = self.frase
-        engine.say(frase)
-        #engine.say("suca")
+        #engine.say(frase)
+        engine.say("suca")
         engine.runAndWait()
-        engine.stop()
         return
+
 
     def goBack(self):
         self.manager.current = 'main'
         self.manager.transition.direction = 'right'
         return
+
 
     def getIcon(self, descritpion):
         return "media/alternative/" + descritpion.replace(" ", "_") + ".png"
@@ -125,6 +129,7 @@ class ForecastPage(Screen):
         else:
             return day + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
     
+##############################################################################################
 
 
 class HourlyForecast(MDGridLayout):
