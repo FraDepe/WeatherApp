@@ -11,7 +11,6 @@ from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.gridlayout import MDGridLayout 
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
-from geopy.geocoders import Nominatim
 import speech_recognition
 import pyttsx3
 
@@ -31,7 +30,6 @@ class MainPage(Screen):
         #engine = pyttsx3.init()
         #engine.say("Ascolto")
         #engine.runAndWait()
-        self.ids['microphone'].background_normal = 'media/mic_listening.png' # NON CAMBIA
         try:
             with speech_recognition.Microphone() as mic:
                 self.recognizer.adjust_for_ambient_noise(mic)
@@ -48,7 +46,6 @@ class MainPage(Screen):
             self.manager.current = 'forecast'           # NON HO VOGLIA DI PARLARE
             self.manager.transition.direction = 'left'  # NON HO VOGLIA DI PARLARE
         print("Finisco di ascoltare")
-        self.ids['microphone'].background_normal = 'media/mic2.png' # NON CAMBIA
 
 
 ##############################################################################################
@@ -62,15 +59,19 @@ class ForecastPage(Screen):
     sentence = ""
     frase = 'suca'
 
-    def on_enter(self):
+    def on_enter(self):     
 
-        gn = Nominatim(user_agent='WeatherApp') # Oppure usare l'API di OpenWeather
-        
-        coordinates = gn.geocode(self.sentence) # Nella frase potrebbe non esserci una specifica
-                                                # località (allora uso posizione del gps tramite plyer)
+        req_geocode = UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.sentence.replace(' ', '+')}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
 
-        req_today = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
-        req_forecast = UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={coordinates.latitude}&lon={coordinates.longitude}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
+        req_geocode.wait()
+
+        latitude = req_geocode.result[0]['lat']
+        longitude = req_geocode.result[0]['lon']
+
+        print(latitude, longitude)
+
+        req_today = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={str(latitude)}&lon={str(longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
+        req_forecast = UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={str(latitude)}&lon={str(longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
 
         req_today.wait()
         req_forecast.wait()
@@ -156,7 +157,7 @@ class WeatherApp(MDApp):
     api_key = "c0b583a8bb8b03e64dd0e16bccda95bf"
     def build(self):
         #kv = Builder.load_file('weather.kv')
-        Window.size = (450,800)
+        Window.size = (450,800)     # DA RIMUOVERE
         #return kv
 
 

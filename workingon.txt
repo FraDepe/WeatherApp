@@ -5,6 +5,24 @@ Analisi della frase per capire se si parla del presente o del futuro
 
 Analisi della frase per estrarre informazioni sulla località e giorno richiesto e sull'orario se specificato 
 
+Richiesta della previsione anche dalla pagina ForecastPage
+
+Error Handler per geopy
+
+Gestire icona sole di giorno e icona luna di notte
+
 spacy nltk
 
 RICORDA IL COMANDO VOCALE
+
+
+che tempo farà verso le 20
+che tempo ci sarà domani
+come sarà il tempo martedì alle 14
+che tempo fa 
+che tempo farà
+Che tempo farà a cerveteri lunedì 
+Che tempo farà lunedì a cerveteri
+quali saranno le condizioni atmosferiche
+Com'è il tempo a roma
+che tempo farà domani alle 16 
