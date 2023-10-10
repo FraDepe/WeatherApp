@@ -1,18 +1,14 @@
-from kivy.app import App
 from kivy.network.urlrequest import UrlRequest
+from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.lang import Builder
 from kivymd.app import MDApp
-from kivy.metrics import dp
-from kivymd.uix.tab.tab import MDTabsBase
-from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.gridlayout import MDGridLayout 
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
-import speech_recognition
-import pyttsx3
+#import speech_recognition  SOSTITUITO DA PLYER
+#import pyttsx3             SOSTITUITO DA PLYER
+from plyer import tts, stt
 
 
 ##############################################################################################
@@ -20,48 +16,59 @@ import pyttsx3
 
 class MainPage(Screen):
     
-    request = None
-    city = ""
-    recognizer = speech_recognition.Recognizer()
     sentence = ""
+    sentences = ""
 
-    def listenToSearch(self):
-        print("Comincio ad ascoltare")
-        #engine = pyttsx3.init()
-        #engine.say("Ascolto")
-        #engine.runAndWait()
-        try:
-            with speech_recognition.Microphone() as mic:
-                self.recognizer.adjust_for_ambient_noise(mic)
-                audio = self.recognizer.record(mic, duration=1) # DURATION VA MESSO A 4 SECONDI
-                text = self.recognizer.recognize_google(audio, language="it-it")
-                text = text.lower()
-                self.sentence = text
-                print(text)
-                self.manager.current = 'forecast'
-                self.manager.transition.direction = 'left'
-        except speech_recognition.UnknownValueError:
-            print("Errore")
-            self.sentence = "Roma"                      # NON HO VOGLIA DI PARLARE
-            self.manager.current = 'forecast'           # NON HO VOGLIA DI PARLARE
-            self.manager.transition.direction = 'left'  # NON HO VOGLIA DI PARLARE
-        print("Finisco di ascoltare")
+    def listenToSearch(self):        
+        self.start_listening()
 
+    def start_listening(self):
+        self.sentence = ""
+        stt.start()
+        Clock.schedule_interval(self.check_state, 1 / 5)
+
+    def stop_listening(self):      
+        stt.stop()
+        self.update()
+        Clock.unschedule(self.check_state)
+
+        self.sentence = self.sentences[0]
+        self.manager.current = 'forecast'
+        self.manager.transition.direction = 'left'
+
+    def check_state(self, dt):
+        if not stt.listening:
+            self.stop_listening()
+
+    def update(self):
+        self.sentences = stt.results
 
 ##############################################################################################
 
 
 class ForecastPage(Screen):
 
-    city = StringProperty()
     request_today = None
     request_forecast = None
     sentence = ""
-    frase = 'suca'
+    day = ""
+    hour = ""
+    location = ""
 
     def on_enter(self):     
 
-        req_geocode = UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.sentence.replace(' ', '+')}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
+        self.sentence = self.manager.get_screen("main").sentence # Prendo la frase da esaminare
+
+        self.location = self.extractLocation(self.sentence)
+        self.day = self.extractTime(self.sentence)[0]
+        self.hour = self.extractTime(self.sentence)[1]
+
+        if self.diffInDays(self.day) > 4:
+            tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
+            return
+
+
+        req_geocode = UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.location}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
 
         req_geocode.wait()
 
@@ -79,7 +86,6 @@ class ForecastPage(Screen):
         self.request_today = req_today
         self.request_forecast = req_forecast
 
-        #analisi della frase per capire se eseguire getToday o getForecast
         self.getToday(req_today.result, req_forecast.result)
         #self.responseToAudio()
         return
@@ -108,18 +114,88 @@ class ForecastPage(Screen):
         return
 
 
+    def extractLocation(frase):
+        if " a " in frase:
+            return frase[frase.find(" a ")+3:]
+        elif " all'" in frase:
+            return frase[frase.find(" all'")+5:]
+        elif " ad " in frase:
+            return frase[frase.find(" ad ")+4:]
+        elif " ai " in frase:
+            return frase[frase.find(" ai ")+4:]
+        elif " sull'" in frase:
+            return frase[frase.find(" sull'")+6:]
+        elif " sul " in frase:
+            return frase[frase.find(" sul ")+5:]
+
+
+    def extractTime(frase):
+        orario = -1
+        giorno = datetime.date.today().strftime("%A")
+
+        if "l'una" in frase:
+            orario = "01"
+        elif "mezzanotte" in frase:
+            orario = "00"
+        elif "mezzogiorno" in frase:
+            orario = "12"
+
+        parole = frase.split(" ")
+
+        for parola in parole:
+            if parola.isdigit():
+                orario = parola
+            elif ":" in parola:
+                orario = parola
+
+        if "oggi" in frase:
+            pass
+        elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
+            giorno = (datetime.date.today() + datetime.timedelta(2)).strftime("%A")
+        elif "domani" in frase or "tra un giorno" in frase or "fra un giorno" in frase or "tra 1 giorno" in frase or "fra 1 giorno" in frase:
+            giorno = (datetime.date.today() + datetime.timedelta(1)).strftime("%A")
+        elif "tra tre giorni" in frase or "fra tre giorni" in frase or "tra 3 giorni" in frase or "fra 3 giorni" in frase:
+            giorno = (datetime.date.today() + datetime.timedelta(3)).strftime("%A")
+        elif "tra quattro giorni" in frase or "fra quattro giorni" in frase or "tra 4 giorni" in frase or "fra 4 giorni" in frase:
+            giorno = (datetime.date.today() + datetime.timedelta(4)).strftime("%A")
+        elif " tra " in frase or " fra " in frase:
+            giorno = None
+        elif "luned" in frase:
+            giorno = "Monday"
+        elif "marted" in frase:
+            giorno = "Tuesday"
+        elif "mercoled" in frase:
+            giorno = "Wednesday"
+        elif "gioved" in frase:
+            giorno = "Thursday"
+        elif "venerd" in frase:
+            giorno = "Friday"
+        elif "sabato" in frase:
+            giorno = "Saturday"
+        elif "domenica" in frase:
+            giorno = "Sunday"
+        else:
+            pass
+        return (giorno, orario)
+
+
+    def diffInDays(day):
+        if day == None:
+            return 6
+        today = datetime.date.today()
+        diff = 0
+        while day != today.strftime("%A"):
+            diff += 1
+            today = today + datetime.timedelta(1)
+        return diff     #Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
+
+
+
     def responseToAudio(self):
-        engine = pyttsx3.init()
-        #rate = engine.getProperty('rate')
-        #engine.setProperty('rate', rate-50)
-        frase = self.frase
-        #engine.say(frase)
-        engine.say("suca")
-        engine.runAndWait()
         return
 
 
-    def goBack(self):
+    def goBack(self):   # FORSE DEVE CANCELLARE I JSON NEI VARI REQUEST
         self.manager.current = 'main'
         self.manager.transition.direction = 'right'
         return
@@ -127,6 +203,7 @@ class ForecastPage(Screen):
 
     def getIcon(self, descritpion):
         return "media/alternative/" + descritpion.replace(" ", "_") + ".png"
+
 
     def getDay(self,timestamp):
         day = datetime.datetime.fromtimestamp(timestamp).strftime("%A")
