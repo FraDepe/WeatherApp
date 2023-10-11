@@ -1,13 +1,11 @@
 from kivy.network.urlrequest import UrlRequest
 from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.app import MDApp
 from kivymd.uix.gridlayout import MDGridLayout 
+from kivy.base import EventLoop
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
-#import speech_recognition  SOSTITUITO DA PLYER
-#import pyttsx3             SOSTITUITO DA PLYER
 from plyer import tts, stt
 
 
@@ -18,6 +16,9 @@ class MainPage(Screen):
     
     sentence = ""
     sentences = ""
+
+    def on_start(self): 
+        EventLoop.window.bind(on_keyboard=self.key_pressed)
 
     def listenToSearch(self):        
         self.start_listening()
@@ -43,6 +44,15 @@ class MainPage(Screen):
     def update(self):
         self.sentences = stt.results
 
+    def key_pressed(self, window, key, *args):
+        if key == 27:
+            if self.manager.current == 'forecast':
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                return True
+            return False
+
+
 ##############################################################################################
 
 
@@ -57,11 +67,19 @@ class ForecastPage(Screen):
 
     def on_enter(self):     
 
+        EventLoop.window.bind(on_keyboard=self.key_pressed)
+
         self.sentence = self.manager.get_screen("main").sentence # Prendo la frase da esaminare
 
         self.location = self.extractLocation(self.sentence)
         self.day = self.extractTime(self.sentence)[0]
         self.hour = self.extractTime(self.sentence)[1]
+
+        print(self.sentence)
+        print(self.location)
+        print(self.day)
+        print(self.hour)
+        print(self.diffInDays(self.day))
 
         if self.diffInDays(self.day) > 4:
             tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
@@ -114,7 +132,11 @@ class ForecastPage(Screen):
         return
 
 
-    def extractLocation(frase):
+    def responseToAudio(self):
+        pass
+
+
+    def extractLocation(self, frase):
         if " a " in frase:
             return frase[frase.find(" a ")+3:]
         elif " all'" in frase:
@@ -129,7 +151,7 @@ class ForecastPage(Screen):
             return frase[frase.find(" sul ")+5:]
 
 
-    def extractTime(frase):
+    def extractTime(self, frase):
         orario = -1
         giorno = datetime.date.today().strftime("%A")
 
@@ -140,13 +162,13 @@ class ForecastPage(Screen):
         elif "mezzogiorno" in frase:
             orario = "12"
 
-        parole = frase.split(" ")
-
-        for parola in parole:
-            if parola.isdigit():
-                orario = parola
-            elif ":" in parola:
-                orario = parola
+        if orario == -1:    # Faccio solo se l'orario non è ancora stato definito
+            parole = frase.split(" ")
+            for parola in parole:
+                if parola.isdigit():
+                    orario = parola
+                elif ":" in parola:
+                    orario = parola
 
         if "oggi" in frase:
             pass
@@ -179,7 +201,7 @@ class ForecastPage(Screen):
         return (giorno, orario)
 
 
-    def diffInDays(day):
+    def diffInDays(self, day):
         if day == None:
             return 6
         today = datetime.date.today()
@@ -195,14 +217,39 @@ class ForecastPage(Screen):
         return
 
 
-    def goBack(self):   # FORSE DEVE CANCELLARE I JSON NEI VARI REQUEST
+    def goBack(self):
+        self.ids['forecast_container'].clear_widgets()
+        self.ids['today_icon'].source = "media/default.png"
         self.manager.current = 'main'
         self.manager.transition.direction = 'right'
-        return
+        request_today = None
+        request_forecast = None
+        sentence = ""
+        day = ""
+        hour = ""
+        location = ""
+        return True
+
+
+    def key_pressed(self, window, key, *args):  
+        if key == 27:
+            if self.manager.current == 'forecast':
+                self.ids['forecast_container'].clear_widgets()
+                self.ids['today_icon'].source = "media/default.png"
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                request_today = None
+                request_forecast = None
+                sentence = ""
+                day = ""
+                hour = ""
+                location = ""
+                return True
+            return False
 
 
     def getIcon(self, descritpion):
-        return "media/alternative/" + descritpion.replace(" ", "_") + ".png"
+        return "media/" + descritpion.replace(" ", "_") + ".png"
 
 
     def getDay(self,timestamp):
@@ -220,25 +267,18 @@ class HourlyForecast(MDGridLayout):
     pass
 
 
-##############################################################################################
-
 
 class PageManager(ScreenManager):
     pass
 
-
-##############################################################################################
 
 
 class WeatherApp(MDApp):
     api_key = "c0b583a8bb8b03e64dd0e16bccda95bf"
     def build(self):
         #kv = Builder.load_file('weather.kv')
-        Window.size = (450,800)     # DA RIMUOVERE
+        return
         #return kv
-
-
-##############################################################################################
 
 
 if __name__ == '__main__':
