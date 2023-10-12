@@ -9,6 +9,7 @@ import datetime
 from plyer import tts, stt
 
 
+
 ##############################################################################################
 
 
@@ -61,9 +62,9 @@ class ForecastPage(Screen):
     request_today = None
     request_forecast = None
     sentence = ""
-    day = ""
-    hour = ""
-    location = ""
+    day = ""                # Opzionale di default datetime.datetime.today().strftime("%A") 
+    hour = ""               # Opzionale (-1 se non specificato)
+    location = ""           # Obbligatorio
 
     def on_enter(self):     
 
@@ -72,19 +73,13 @@ class ForecastPage(Screen):
         self.sentence = self.manager.get_screen("main").sentence # Prendo la frase da esaminare
 
         self.location = self.extractLocation(self.sentence)
-        self.day = self.extractTime(self.sentence)[0]
-        self.hour = self.extractTime(self.sentence)[1]
+        self.day, self.hour = self.extractTime(self.sentence)
 
         print(self.sentence)
         print(self.location)
         print(self.day)
         print(self.hour)
         print(self.diffInDays(self.day))
-
-        if self.diffInDays(self.day) > 4:
-            tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
-            return
-
 
         req_geocode = UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.location}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
 
@@ -105,10 +100,16 @@ class ForecastPage(Screen):
         self.request_forecast = req_forecast
 
         self.getToday(req_today.result, req_forecast.result)
-        #self.responseToAudio()
+
+        if self.diffInDays(self.day) > 4:
+            tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
+            return
+        else:
+            self.responseToAudio()
         return
         
 
+    #Fuzione che crea e inserisce i vari ExpansionPanel con le previsioni
     def getToday(self, result_today, result_forecast):
         print(self.sentence)
 
@@ -132,10 +133,122 @@ class ForecastPage(Screen):
         return
 
 
+    # Funzione che formula ed effettua la risposta vocale
     def responseToAudio(self):
-        pass
+
+        # Se ho una richiesta generale (senza orario) ad un giorno futuro diverso da oggi
+        if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
+            main_weather, main_temp = self.getGeneralWeather()
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp}"
+        
+        # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
+        elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
+            main_weather, main_temp = self.getSpecificWeather()
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+            
+        # Se ho una richiesta generale (senza orario) per oggi
+        elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
+            main_weather = self.request_today.result['weather'][0]['main']
+            main_temp = round(self.request_today.result['main']['temp'])
+            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+
+        # Se ho una richiesta specifica (con orario) per oggi
+        elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
+            if self.hour < str(datetime.datetime.now())[11:16]:
+                frase = f"Le {self.hour} sono già passate, prova con un altro orario"
+            else:
+                main_weather, main_temp = self.getSpecificWeather()
+                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+
+        print(frase)
+        tts.speak(frase)
+        return
 
 
+    # Risposta a richiesta futura specifica (con orario)
+    def getSpecificWeather(self):
+        available_hours = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
+        if self.hour not in available_hours:
+            if self.hour < available_hours[0] or self.hour > available_hours[-1]:
+                custom_hour = available_hours[0]
+            for x in range(0, len(available_hours)-1):
+                if self.hour > available_hours[x] and self.hour < available_hours[x+1]:
+                    custom_hour = available_hours[x+1]
+        else:
+            custom_hour = self.hour
+
+        for desc in self.request_forecast.result['list']:
+                if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day and custom_hour in str(datetime.datetime.fromtimestamp(desc['dt'])):
+                    weather = desc['weather'][0]['main']
+                    temp = desc['main']['temp']
+
+        return weather, round(temp)
+
+
+    # Risposta a richiesta futura generale (senza orario)
+    def getGeneralWeather(self):  
+        stats = {}
+        avarage_temp = 0
+        for desc in self.request_forecast.result['list']:
+            if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day:
+                if desc['weather'][0]['main'] in stats:
+                    stats.update({desc['weather'][0]['main']: stats[desc['weather'][0]['main']] + 1})
+                else:
+                    stats.update({desc['weather'][0]['main']: 1})
+                avarage_temp += desc['main']['temp']
+
+        highest = ""
+        temp = 0 
+        #print(stats.items())
+        for key in stats.keys():
+            if stats[key] > temp:
+                highest = key
+                temp = stats[key]
+        return highest, round(avarage_temp/8)
+
+
+    # Funzione che traduce self.day in italiano per la risposta vocale
+    def dayTranslate(self, day):
+        if datetime.datetime.today().strftime("%A") == day:
+            return "oggi"
+        else:
+            if day == "Monday":
+                return "lunedì"
+            elif day == "Tuesday":
+                return "martedì"
+            elif day == "Wednesday":
+                return "mercoledì "
+            elif day == "Thursday":
+                return "giovedì"
+            elif day == "Friday":
+                return "venerdì"
+            elif day == "Saturday":
+                return "sabato"
+            elif day == "Sunday":
+                return "domenica"
+
+
+    # Funzione che traduce l'informazione del tempo ricevuta dalla request in italiano per la risposta vocale
+    def weatherTranslate(self, weather):
+        if weather == "Thunderstorm" or weather == "Squall" or weather == "Tornado":
+            return "temporalesco"
+        elif weather == "Drizzle":
+            return "piovigginoso"
+        elif weather == "Clouds":
+            return "nuvoloso"
+        elif weather == "Clear":
+            return "sereno"
+        elif weather == "Rain":
+            return "piovoso"
+        elif weather == "Snow":
+            return "nevoso"
+        elif weather == "Mist" or weather == "Smoke" or weather == "Haze" or weather == "Fog":
+            return "nebbioso"
+        elif weather == "Dust" or weather == "Sand" or weather == "Ash":
+            return "polveroso"
+
+
+    #Funzione che estrae la località richiesta
     def extractLocation(self, frase):
         if " a " in frase:
             return frase[frase.find(" a ")+3:]
@@ -151,22 +264,23 @@ class ForecastPage(Screen):
             return frase[frase.find(" sul ")+5:]
 
 
+    #Funzione che estrae dalla frase il giorno e l'orario richiesto (l'orario se non viene specificato è -1)
     def extractTime(self, frase):
         orario = -1
         giorno = datetime.date.today().strftime("%A")
 
         if "l'una" in frase:
-            orario = "01"
+            orario = "01:00"
         elif "mezzanotte" in frase:
-            orario = "00"
+            orario = "00:00"
         elif "mezzogiorno" in frase:
-            orario = "12"
+            orario = "12:00"
 
         if orario == -1:    # Faccio solo se l'orario non è ancora stato definito
             parole = frase.split(" ")
             for parola in parole:
                 if parola.isdigit():
-                    orario = parola
+                    orario = parola + ":00"
                 elif ":" in parola:
                     orario = parola
 
@@ -198,9 +312,10 @@ class ForecastPage(Screen):
             giorno = "Sunday"
         else:
             pass
-        return (giorno, orario)
+        return giorno, orario
 
 
+    #Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
     def diffInDays(self, day):
         if day == None:
             return 6
@@ -209,14 +324,10 @@ class ForecastPage(Screen):
         while day != today.strftime("%A"):
             diff += 1
             today = today + datetime.timedelta(1)
-        return diff     #Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
+        return diff     
+    
 
-
-
-    def responseToAudio(self):
-        return
-
-
+    # Funzione bindata al tasto indietro della topbar
     def goBack(self):
         self.ids['forecast_container'].clear_widgets()
         self.ids['today_icon'].source = "media/default.png"
@@ -231,6 +342,7 @@ class ForecastPage(Screen):
         return True
 
 
+    #Funzione che binda il back button di android per far tornare indietro alla main page 
     def key_pressed(self, window, key, *args):  
         if key == 27:
             if self.manager.current == 'forecast':
@@ -248,10 +360,12 @@ class ForecastPage(Screen):
             return False
 
 
+    #Funzione per ricavare l'icona dalla cartella "media"
     def getIcon(self, descritpion):
         return "media/" + descritpion.replace(" ", "_") + ".png"
 
 
+    # Funzione che traduce i timestamp in giorni della settimana
     def getDay(self,timestamp):
         day = datetime.datetime.fromtimestamp(timestamp).strftime("%A")
         if datetime.datetime.now().strftime("%A") in day:
