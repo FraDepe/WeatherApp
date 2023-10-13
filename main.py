@@ -73,6 +73,9 @@ class ForecastPage(Screen):
         self.sentence = self.manager.get_screen("main").sentence # Prendo la frase da esaminare
 
         self.location = self.extractLocation(self.sentence)
+        if " " in self.location:
+            self.location.replace(" ", "+")
+
         self.day, self.hour = self.extractTime(self.sentence)
 
         print(self.sentence)
@@ -113,14 +116,14 @@ class ForecastPage(Screen):
     def getToday(self, result_today, result_forecast):
         print(self.sentence)
 
-        self.ids['today_icon'].source = self.getIcon(result_today['weather'][0]['description'])
+        self.ids['today_icon'].source = self.getIcon(result_today['weather'][0]['description'], result_today['weather'][0]['main'], result_today['dt'])
         
         for x in result_forecast['list']:
             info = HourlyForecast()
             panel = MDExpansionPanel(
                 content = info,
                 
-                icon = self.getIcon(x['weather'][0]['description']),
+                icon = self.getIcon(x['weather'][0]['description'], x['weather'][0]['main'], x['dt']),
                 panel_cls = MDExpansionPanelOneLine(
                     text = self.getDay(x['dt'])
                 ),
@@ -139,18 +142,18 @@ class ForecastPage(Screen):
         # Se ho una richiesta generale (senza orario) ad un giorno futuro diverso da oggi
         if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
             main_weather, main_temp = self.getGeneralWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp}"
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi"
         
         # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
         elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
             main_weather, main_temp = self.getSpecificWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
             
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
             main_weather = self.request_today.result['weather'][0]['main']
             main_temp = round(self.request_today.result['main']['temp'])
-            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
 
         # Se ho una richiesta specifica (con orario) per oggi
         elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
@@ -158,7 +161,7 @@ class ForecastPage(Screen):
                 frase = f"Le {self.hour} sono già passate, prova con un altro orario"
             else:
                 main_weather, main_temp = self.getSpecificWeather()
-                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp}"
+                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
 
         print(frase)
         tts.speak(frase)
@@ -361,9 +364,20 @@ class ForecastPage(Screen):
 
 
     #Funzione per ricavare l'icona dalla cartella "media"
-    def getIcon(self, descritpion):
-        return "media/" + descritpion.replace(" ", "_") + ".png"
-
+    def getIcon(self, descritpion, main, timestamp):
+        time = str(datetime.datetime.fromtimestamp(timestamp))[11:16]
+        if main == "Thunderstorm":
+            return "media/thunderstorm.png"
+        elif main == "Drizzle":
+            return "media/rain.png"
+        elif descritpion in ("clear sky", "few clouds", "light rain"):
+            if time >= "06:00" and time <= "18:00":
+                return "media/day" + descritpion.replace(" ", "_") + ".png"
+            else:
+                return "media/night" + descritpion.replace(" ", "_") + ".png"
+        else:
+            return "media/" + descritpion.replace(" ", "_").replace("/", "_") + ".png"
+         
 
     # Funzione che traduce i timestamp in giorni della settimana
     def getDay(self,timestamp):

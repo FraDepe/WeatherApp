@@ -1,12 +1,8 @@
 
-
-Analisi della frase per capire se si parla del presente o del futuro
-
-Analisi della frase per estrarre informazioni sulla località e giorno richiesto e sull'orario se specificato 
-
 Richiesta della previsione anche dalla pagina ForecastPage
 
-Gestire icona sole di giorno e icona luna di notte
+Gestire orario/giorno invalido
 
+GESTIRE IL WAIT INFINTO DI URLREQUEST
 
 RICORDA IL COMANDO VOCALE
