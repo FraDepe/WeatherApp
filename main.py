@@ -59,8 +59,10 @@ class MainPage(Screen):
 
 class ForecastPage(Screen):
 
-    request_today = None
-    request_forecast = None
+    response_today = None
+    response_forecast = None
+    latitude = ""
+    longitude = ""
     sentence = ""
     day = ""                # Opzionale di default datetime.datetime.today().strftime("%A") 
     hour = ""               # Opzionale (-1 se non specificato)
@@ -73,8 +75,6 @@ class ForecastPage(Screen):
         self.sentence = self.manager.get_screen("main").sentence # Prendo la frase da esaminare
 
         self.location = self.extractLocation(self.sentence)
-        if " " in self.location:
-            self.location.replace(" ", "+")
 
         self.day, self.hour = self.extractTime(self.sentence)
 
@@ -84,25 +84,39 @@ class ForecastPage(Screen):
         print(self.hour)
         print(self.diffInDays(self.day))
 
-        req_geocode = UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.location}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf")
+        UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.location.replace(' ', '+')}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf", on_success=self.gotCoordinates, on_error=self.gotAnError, on_failure=self.gotAnError)
+        
+        return 
+    
 
-        req_geocode.wait()
+    # Funzione chiamata se la UrlRequest per le coordinate va a buon fine
+    def gotCoordinates(self, req, r):
+        if r == []:
+            self.gotAnError(req, r)
+            return
+        self.latitude = r[0]['lat']
+        self.longitude = r[0]['lon']
+        
+        UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={str(self.latitude)}&lon={str(self.longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric", on_success=self.gotWeatherToday, on_error=self.gotAnError, on_failure=self.gotAnError)
 
-        latitude = req_geocode.result[0]['lat']
-        longitude = req_geocode.result[0]['lon']
 
-        print(latitude, longitude)
+    # Funzione chiamata se la UrlRequest per la previsione di oggi va a buon fine
+    def gotWeatherToday(self, req, r):
+        if r == []:
+            self.gotAnError(req, r)
+            return
+        self.response_today=r
+        UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={str(self.latitude)}&lon={str(self.longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric", on_success=self.gotWeatherForecast, on_error=self.gotAnError, on_failure=self.gotAnError)
 
-        req_today = UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={str(latitude)}&lon={str(longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
-        req_forecast = UrlRequest(f"https://api.openweathermap.org/data/2.5/forecast?lat={str(latitude)}&lon={str(longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric")
 
-        req_today.wait()
-        req_forecast.wait()
+    # Funzione chiamata se la UrlRequest per la previsione
+    def gotWeatherForecast(self, req, r):
+        if r == []:
+            self.gotAnError(req, r)
+            return
+        self.response_forecast=r
 
-        self.request_today = req_today
-        self.request_forecast = req_forecast
-
-        self.getToday(req_today.result, req_forecast.result)
+        self.getToday(self.response_today, self.response_forecast)
 
         if self.diffInDays(self.day) > 4:
             tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
@@ -110,7 +124,13 @@ class ForecastPage(Screen):
         else:
             self.responseToAudio()
         return
-        
+
+
+    # Funzione chiamata in caso di errore da parte della UrlRequest
+    def gotAnError(self, req, r):
+        tts.speak("C'è stato un errore con la richiesta al servizio per le previsioni")
+        return
+
 
     #Fuzione che crea e inserisce i vari ExpansionPanel con le previsioni
     def getToday(self, result_today, result_forecast):
@@ -151,8 +171,8 @@ class ForecastPage(Screen):
             
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
-            main_weather = self.request_today.result['weather'][0]['main']
-            main_temp = round(self.request_today.result['main']['temp'])
+            main_weather = self.response_today['weather'][0]['main']
+            main_temp = round(self.response_today['main']['temp'])
             frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
 
         # Se ho una richiesta specifica (con orario) per oggi
@@ -180,7 +200,7 @@ class ForecastPage(Screen):
         else:
             custom_hour = self.hour
 
-        for desc in self.request_forecast.result['list']:
+        for desc in self.response_forecast['list']:
                 if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day and custom_hour in str(datetime.datetime.fromtimestamp(desc['dt'])):
                     weather = desc['weather'][0]['main']
                     temp = desc['main']['temp']
@@ -192,7 +212,7 @@ class ForecastPage(Screen):
     def getGeneralWeather(self):  
         stats = {}
         avarage_temp = 0
-        for desc in self.request_forecast.result['list']:
+        for desc in self.response_forecast['list']:
             if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day:
                 if desc['weather'][0]['main'] in stats:
                     stats.update({desc['weather'][0]['main']: stats[desc['weather'][0]['main']] + 1})
@@ -336,12 +356,12 @@ class ForecastPage(Screen):
         self.ids['today_icon'].source = "media/default.png"
         self.manager.current = 'main'
         self.manager.transition.direction = 'right'
-        request_today = None
-        request_forecast = None
-        sentence = ""
-        day = ""
-        hour = ""
-        location = ""
+        self.response_today = None
+        self.response_forecast = None
+        self.sentence = ""
+        self.day = ""
+        self.hour = ""
+        self.location = ""
         return True
 
 
@@ -353,12 +373,12 @@ class ForecastPage(Screen):
                 self.ids['today_icon'].source = "media/default.png"
                 self.manager.current = 'main'
                 self.manager.transition.direction = 'right'
-                request_today = None
-                request_forecast = None
-                sentence = ""
-                day = ""
-                hour = ""
-                location = ""
+                self.response_today = None
+                self.response_forecast = None
+                self.sentence = ""
+                self.day = ""
+                self.hour = ""
+                self.location = ""
                 return True
             return False
 
