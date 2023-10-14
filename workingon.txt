@@ -1,6 +1,5 @@
 
 (Richiesta della previsione anche dalla pagina ForecastPage)??????
 
-Gestire orario/giorno invalido
 
-GESTIRE IL WAIT INFINTO DI URLREQUEST --> aggiungere handler tramite parametri on_success e on_failure o on_error
+

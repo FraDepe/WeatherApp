@@ -34,6 +34,9 @@ class MainPage(Screen):
         self.update()
         Clock.unschedule(self.check_state)
 
+        if self.sentences == []:
+            self.noSentences()
+            return
         self.sentence = self.sentences[0]
         self.manager.current = 'forecast'
         self.manager.transition.direction = 'left'
@@ -52,6 +55,9 @@ class MainPage(Screen):
                 self.manager.transition.direction = 'right'
                 return True
             return False
+
+    def noSentences(self):
+        tts.speak("Non ho capito, ripetere per favore")
 
 
 ##############################################################################################
@@ -303,9 +309,14 @@ class ForecastPage(Screen):
             parole = frase.split(" ")
             for parola in parole:
                 if parola.isdigit():
+                    if len(parola) == 1:
+                        parola = "0"+parola
                     orario = parola + ":00"
                 elif ":" in parola:
-                    orario = parola
+                    if len(parola) == 4:
+                        orario = "0"+parola
+                    else:
+                        orario = parola
 
         if "oggi" in frase:
             pass
@@ -317,7 +328,7 @@ class ForecastPage(Screen):
             giorno = (datetime.date.today() + datetime.timedelta(3)).strftime("%A")
         elif "tra quattro giorni" in frase or "fra quattro giorni" in frase or "tra 4 giorni" in frase or "fra 4 giorni" in frase:
             giorno = (datetime.date.today() + datetime.timedelta(4)).strftime("%A")
-        elif " tra " in frase or " fra " in frase:
+        elif " tra " in frase or " fra " in frase or "ieri" in frase or "era " in frase:
             giorno = None
         elif "luned" in frase:
             giorno = "Monday"
@@ -392,9 +403,9 @@ class ForecastPage(Screen):
             return "media/rain.png"
         elif descritpion in ("clear sky", "few clouds", "light rain"):
             if time >= "06:00" and time <= "18:00":
-                return "media/day" + descritpion.replace(" ", "_") + ".png"
+                return "media/day/" + descritpion.replace(" ", "_") + ".png"
             else:
-                return "media/night" + descritpion.replace(" ", "_") + ".png"
+                return "media/night/" + descritpion.replace(" ", "_") + ".png"
         else:
             return "media/" + descritpion.replace(" ", "_").replace("/", "_") + ".png"
          

@@ -17,7 +17,7 @@ PageManager:
         padding: 10
         canvas.before:
             Color:
-                rgba: (1, 209/255,102/255,1)
+                rgba: (59/255, 124/255, 222/255, 1)
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -41,7 +41,7 @@ PageManager:
             #on_touch_down: root.responseToAudio()  RICORDA DI STA CAFONATA
         MDBoxLayout:
             orientation: 'vertical'
-            md_bg_color: 119/255, 239/255, 199/255, 1
+            md_bg_color: 59/255, 124/255, 222/255, 1
             MDTopAppBar:
                 title: '5 Days Forecast'
                 elevation: 3
@@ -49,14 +49,14 @@ PageManager:
             Image:
                 id: today_icon
                 source: "media/default.png"
-                size_hint: (0.8, 0.55)
+                size_hint: (0.8, 0.63)
                 pos_hint: {'center_x': 0.5}
             MDBoxLayout:
                 orientation: 'vertical'
-                padding: 20
+                padding: 10
                 canvas.before:
                     Color:
-                        rgba: (119/255, 239/255, 199/255, 1)
+                        rgba: (59/255, 124/255, 222/255, 1)
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -79,49 +79,52 @@ PageManager:
         Image:
             source: 'media/temp.png'
             size_hint_y: None
-            size_hint_x: 0.6
-            width: self.parent.width*0.5
-            height: self.parent.height*0.5
+            size_hint_x: 0.65
+            width: self.parent.width*0.7
+            height: self.parent.height*0.7
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: temp  
+            font_size: '15sp'
         
     MDBoxLayout:
         orientation: 'horizontal'
         Image:
             source: 'media/humidity.png'
             size_hint_y: None
-            size_hint_x: 0.6
-            width: self.parent.width*0.5
-            height: self.parent.height*0.5
+            size_hint_x: 0.65
+            width: self.parent.width*0.7
+            height: self.parent.height*0.7
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: humid
+            font_size: '15sp'
     
     MDBoxLayout:
         orientation: 'horizontal'
         Image:
             source: 'media/pressure.png'
             size_hint_y: None
-            size_hint_x: 0.6
-            width: self.parent.width*0.5
-            height: self.parent.height*0.5
+            size_hint_x: 0.65
+            width: self.parent.width*0.7
+            height: self.parent.height*0.7
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: press
+            font_size: '15sp'
         
     MDBoxLayout:
         orientation: 'horizontal'
         Image:
             source: 'media/wind.png'
             size_hint_y: None
-            size_hint_x: 0.6
-            width: self.parent.width*0.5
-            height: self.parent.height*0.5
+            size_hint_x: 0.65
+            width: self.parent.width*0.7
+            height: self.parent.height*0.7
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: wind
-
+            font_size: '15sp'
 
 
 
