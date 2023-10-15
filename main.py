@@ -133,7 +133,7 @@ class ForecastPage(Screen):
     # Funzione chiamata se la UrlRequest per le coordinate va a buon fine
     def gotCoordinates(self, req, r):
         if r == []:
-            self.gotAnError(req, r)
+            self.gotNoCoordinates()
             return
         self.latitude = r[0]['lat']
         self.longitude = r[0]['lon']
@@ -164,6 +164,12 @@ class ForecastPage(Screen):
             return
         else:
             self.responseToAudio()
+        return
+
+
+    # Funzione chiamata in caso di località non trovata
+    def gotNoCoordinates(self):
+        tts.speak("Località non trovata")
         return
 
 
