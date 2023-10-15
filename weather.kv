@@ -23,13 +23,11 @@ PageManager:
                 size: self.size
         Image:
             source: 'media/world.png'
-            size_hint: (1, 0.6)
-        Button:
+            size_hint: (1, 0.5)
+        ImageButton:
             id: microphone
-            background_normal: 'media/mic2.png'
-            background_down: 'media/mic_pressed.png'
-            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence
-            
+            source: 'media/mic2.png'
+            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence   
 
 
 <ForecastPage>:

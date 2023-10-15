@@ -4,10 +4,13 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.app import MDApp
 from kivymd.uix.gridlayout import MDGridLayout 
 from kivy.base import EventLoop
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
+from kivy.uix.image import Image
+from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
 from plyer import tts, stt
-
 
 
 ##############################################################################################
@@ -17,18 +20,32 @@ class MainPage(Screen):
     
     sentence = ""
     sentences = ""
+    dialog = None
 
+
+    # Funzione eseguita all'avvio dell'applicazione
     def on_start(self): 
         EventLoop.window.bind(on_keyboard=self.key_pressed)
 
+
+    # Funzione eseguita alla pressione del microfono per cominciare ad eseguire le funzione dello stt    
     def listenToSearch(self):        
         self.start_listening()
 
+
+    # Funzione che esegue l'engine vocale per il riconoscimento delle frasi
     def start_listening(self):
         self.sentence = ""
-        stt.start()
-        Clock.schedule_interval(self.check_state, 1 / 5)
+        try:
+            stt.start()
+            Clock.schedule_interval(self.check_state, 1 / 5)
+        except NotImplementedError:
+            self.openAlertDialog()
+        except:
+            tts.speak("Qualcosa è andato storto, riprova")
 
+
+    # Funzione eseguita una volta che l'engine ha rilevato che nessuno sta parlando
     def stop_listening(self):      
         stt.stop()
         self.update()
@@ -41,13 +58,19 @@ class MainPage(Screen):
         self.manager.current = 'forecast'
         self.manager.transition.direction = 'left'
 
+
+    # Funzione chiamata in loop mentre l'engine ascolta per controllare se si sta ancora parlando o no
     def check_state(self, dt):
         if not stt.listening:
             self.stop_listening()
 
+
+    # Funzione chiamata per ottenere la frase catturata dall'engine
     def update(self):
         self.sentences = stt.results
 
+
+    # Funzione che binda il back button di android per chiudere l'app
     def key_pressed(self, window, key, *args):
         if key == 27:
             if self.manager.current == 'forecast':
@@ -56,6 +79,16 @@ class MainPage(Screen):
                 return True
             return False
 
+
+    # Funzione eseguita in caso di errore da parte dell'engine
+    def openAlertDialog(self):
+        self.dialog = MDDialog(
+            text="Non è stato trovato nessun engine vocale"
+        )
+        self.dialog.open()
+
+
+    # Funzione chiamata in caso non sia stata catturata nessuna frase
     def noSentences(self):
         tts.speak("Non ho capito, ripetere per favore")
 
@@ -74,6 +107,8 @@ class ForecastPage(Screen):
     hour = ""               # Opzionale (-1 se non specificato)
     location = ""           # Obbligatorio
 
+
+    # Funzione chiamata all'avvio della nuova pagina e si occupa di popolarla di widget
     def on_enter(self):     
 
         EventLoop.window.bind(on_keyboard=self.key_pressed)
@@ -138,7 +173,7 @@ class ForecastPage(Screen):
         return
 
 
-    #Fuzione che crea e inserisce i vari ExpansionPanel con le previsioni
+    # Fuzione che crea e inserisce i vari ExpansionPanel con le previsioni
     def getToday(self, result_today, result_forecast):
         print(self.sentence)
 
@@ -277,7 +312,7 @@ class ForecastPage(Screen):
             return "polveroso"
 
 
-    #Funzione che estrae la località richiesta
+    # Funzione che estrae la località richiesta
     def extractLocation(self, frase):
         if " a " in frase:
             return frase[frase.find(" a ")+3:]
@@ -293,7 +328,7 @@ class ForecastPage(Screen):
             return frase[frase.find(" sul ")+5:]
 
 
-    #Funzione che estrae dalla frase il giorno e l'orario richiesto (l'orario se non viene specificato è -1)
+    # Funzione che estrae dalla frase il giorno e l'orario richiesto (l'orario se non viene specificato è -1)
     def extractTime(self, frase):
         orario = -1
         giorno = datetime.date.today().strftime("%A")
@@ -349,7 +384,7 @@ class ForecastPage(Screen):
         return giorno, orario
 
 
-    #Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
+    # Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
     def diffInDays(self, day):
         if day == None:
             return 6
@@ -376,7 +411,7 @@ class ForecastPage(Screen):
         return True
 
 
-    #Funzione che binda il back button di android per far tornare indietro alla main page 
+    # Funzione che binda il back button di android per far tornare indietro alla main page 
     def key_pressed(self, window, key, *args):  
         if key == 27:
             if self.manager.current == 'forecast':
@@ -394,7 +429,7 @@ class ForecastPage(Screen):
             return False
 
 
-    #Funzione per ricavare l'icona dalla cartella "media"
+    # Funzione per ricavare l'icona dalla cartella "media"
     def getIcon(self, descritpion, main, timestamp):
         time = str(datetime.datetime.fromtimestamp(timestamp))[11:16]
         if main == "Thunderstorm":
@@ -419,10 +454,13 @@ class ForecastPage(Screen):
             return day + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
     
 
-##############################################################################################
-
 
 class HourlyForecast(MDGridLayout):
+    pass
+
+
+
+class ImageButton(ButtonBehavior, Image):
     pass
 
 
