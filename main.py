@@ -399,11 +399,13 @@ class ForecastPage(Screen):
         else:
             limitDayMonth = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
             if giorno_del_mese > 0 and giorno_del_mese <= limitDayMonth[datetime.datetime.today().month]:
-                diff_in_days = giorno_del_mese - datetime.datetime.today().day
-                print(diff_in_days, giorno_del_mese, datetime.datetime.today().day)
-                if diff_in_days >= 0 and diff_in_days <= 4:
-                    giorno = (datetime.datetime.today() + datetime.timedelta(diff_in_days)).strftime("%A")
-                    print(giorno)
+                diff_in_days = 0
+                data = datetime.datetime.today()
+                while giorno_del_mese != data.day and diff_in_days < 5:
+                    diff_in_days += 1
+                    data += datetime.timedelta(1)
+                if diff_in_days <= 4:
+                    giorno = data.strftime("%A")
                 else:
                     giorno = None
             else:
