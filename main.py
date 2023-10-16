@@ -5,7 +5,6 @@ from kivymd.app import MDApp
 from kivymd.uix.gridlayout import MDGridLayout 
 from kivy.base import EventLoop
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
@@ -122,6 +121,8 @@ class ForecastPage(Screen):
             self.manager.current = 'main'
             self.manager.transition.direction = 'right'
             return
+        
+        self.ids['topappbar'].title = self.location
 
         self.day, self.hour = self.extractTime(self.sentence)
 
@@ -166,7 +167,10 @@ class ForecastPage(Screen):
         self.getToday(self.response_today, self.response_forecast)
 
         if self.diffInDays(self.day) > 4:
-            tts.speak("Il giorno richiesto va oltre la previsione massima consentita")
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            return
+        elif self.diffInDays(self.day) == -1:
+            tts.speak("Specificare un giorno del mese valido")
             return
         else:
             self.responseToAudio()
@@ -344,6 +348,7 @@ class ForecastPage(Screen):
     def extractTime(self, frase):
         orario = -1
         giorno = datetime.date.today().strftime("%A")
+        giorno_del_mese = None
 
         if "l'una" in frase:
             orario = "01:00"
@@ -356,43 +361,54 @@ class ForecastPage(Screen):
             parole = frase.split(" ")
             for parola in parole:
                 if parola.isdigit():
-                    if len(parola) == 1:
-                        parola = "0"+parola
-                    orario = parola + ":00"
+                    giorno_del_mese = int(parola)
                 elif ":" in parola:
                     if len(parola) == 4:
                         orario = "0"+parola
                     else:
                         orario = parola
-
-        if "oggi" in frase:
-            pass
-        elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
-            giorno = (datetime.date.today() + datetime.timedelta(2)).strftime("%A")
-        elif "domani" in frase or "tra un giorno" in frase or "fra un giorno" in frase or "tra 1 giorno" in frase or "fra 1 giorno" in frase:
-            giorno = (datetime.date.today() + datetime.timedelta(1)).strftime("%A")
-        elif "tra tre giorni" in frase or "fra tre giorni" in frase or "tra 3 giorni" in frase or "fra 3 giorni" in frase:
-            giorno = (datetime.date.today() + datetime.timedelta(3)).strftime("%A")
-        elif "tra quattro giorni" in frase or "fra quattro giorni" in frase or "tra 4 giorni" in frase or "fra 4 giorni" in frase:
-            giorno = (datetime.date.today() + datetime.timedelta(4)).strftime("%A")
-        elif " tra " in frase or " fra " in frase or "ieri" in frase or "era " in frase:
-            giorno = None
-        elif "luned" in frase:
-            giorno = "Monday"
-        elif "marted" in frase:
-            giorno = "Tuesday"
-        elif "mercoled" in frase:
-            giorno = "Wednesday"
-        elif "gioved" in frase:
-            giorno = "Thursday"
-        elif "venerd" in frase:
-            giorno = "Friday"
-        elif "sabato" in frase:
-            giorno = "Saturday"
-        elif "domenica" in frase:
-            giorno = "Sunday"
+        if giorno_del_mese == None:
+            if "oggi" in frase:
+                pass
+            elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
+                giorno = (datetime.date.today() + datetime.timedelta(2)).strftime("%A")
+            elif "domani" in frase or "tra un giorno" in frase or "fra un giorno" in frase or "tra 1 giorno" in frase or "fra 1 giorno" in frase:
+                giorno = (datetime.date.today() + datetime.timedelta(1)).strftime("%A")
+            elif "tra tre giorni" in frase or "fra tre giorni" in frase or "tra 3 giorni" in frase or "fra 3 giorni" in frase:
+                giorno = (datetime.date.today() + datetime.timedelta(3)).strftime("%A")
+            elif "tra quattro giorni" in frase or "fra quattro giorni" in frase or "tra 4 giorni" in frase or "fra 4 giorni" in frase:
+                giorno = (datetime.date.today() + datetime.timedelta(4)).strftime("%A")
+            elif " tra " in frase or " fra " in frase or "ieri" in frase or "era " in frase:
+                giorno = None
+            elif "luned" in frase:
+                giorno = "Monday"
+            elif "marted" in frase:
+                giorno = "Tuesday"
+            elif "mercoled" in frase:
+                giorno = "Wednesday"
+            elif "gioved" in frase:
+                giorno = "Thursday"
+            elif "venerd" in frase:
+                giorno = "Friday"
+            elif "sabato" in frase:
+                giorno = "Saturday"
+            elif "domenica" in frase:
+                giorno = "Sunday"
+            else:
+                pass
         else:
-            pass
+            limitDayMonth = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
+            if giorno_del_mese > 0 and giorno_del_mese <= limitDayMonth[datetime.datetime.today().month]:
+                diff_in_days = giorno_del_mese - datetime.datetime.today().day
+                print(diff_in_days, giorno_del_mese, datetime.datetime.today().day)
+                if diff_in_days >= 0 and diff_in_days <= 4:
+                    giorno = (datetime.datetime.today() + datetime.timedelta(diff_in_days)).strftime("%A")
+                    print(giorno)
+                else:
+                    giorno = None
+            else:
+                giorno = -1
+                
         return giorno, orario
 
 

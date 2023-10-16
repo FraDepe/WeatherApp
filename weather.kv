@@ -5,7 +5,6 @@ PageManager:
     ForecastPage:
 
 
-
 <MainPage>:
     id: main_page
     name: 'main' 
@@ -41,8 +40,8 @@ PageManager:
             orientation: 'vertical'
             md_bg_color: 59/255, 124/255, 222/255, 1
             MDTopAppBar:
-                title: '5 Days Forecast'
-                elevation: 3
+                id: topappbar
+                elevation: 5
                 left_action_items: [ ["arrow-left", lambda x: root.goBack()] ]
             Image:
                 id: today_icon
