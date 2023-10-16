@@ -117,6 +117,12 @@ class ForecastPage(Screen):
 
         self.location = self.extractLocation(self.sentence)
 
+        if self.location == None:
+            tts.speak("Non ho capito in quale località")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
+            return
+
         self.day, self.hour = self.extractTime(self.sentence)
 
         print(self.sentence)
@@ -321,17 +327,17 @@ class ForecastPage(Screen):
     # Funzione che estrae la località richiesta
     def extractLocation(self, frase):
         if " a " in frase:
-            return frase[frase.find(" a ")+3:]
+            return frase[frase.rfind(" a ")+3:]
         elif " all'" in frase:
-            return frase[frase.find(" all'")+5:]
+            return frase[frase.rfind(" all'")+5:]
         elif " ad " in frase:
-            return frase[frase.find(" ad ")+4:]
+            return frase[frase.rfind(" ad ")+4:]
         elif " ai " in frase:
-            return frase[frase.find(" ai ")+4:]
+            return frase[frase.rfind(" ai ")+4:]
         elif " sull'" in frase:
-            return frase[frase.find(" sull'")+6:]
+            return frase[frase.rfind(" sull'")+6:]
         elif " sul " in frase:
-            return frase[frase.find(" sul ")+5:]
+            return frase[frase.rfind(" sul ")+5:]
 
 
     # Funzione che estrae dalla frase il giorno e l'orario richiesto (l'orario se non viene specificato è -1)

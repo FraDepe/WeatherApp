@@ -117,5 +117,8 @@ time = datetime.datetime.fromtimestamp(1697036400)
 #     if hour > available_hours[x] and hour < available_hours[x+1]:
 #         print(available_hours[x+1])
 
-print(str(time)[11:16] >= "17:00")
+# print(str(time)[11:16] >= "17:00")
+
+frase = "Com'è il tempo a mezzogiorno a livorno"
+print(frase.rfind(" a "))
 
