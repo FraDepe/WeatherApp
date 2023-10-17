@@ -367,7 +367,7 @@ class ForecastPage(Screen):
                         orario = "0"+parola
                     else:
                         orario = parola
-        if giorno_del_mese == None:
+        if giorno_del_mese == None or " giorni " in frase:
             if "oggi" in frase:
                 pass
             elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
@@ -477,11 +477,12 @@ class ForecastPage(Screen):
 
     # Funzione che traduce i timestamp in giorni della settimana
     def getDay(self,timestamp):
+        translate = {"Monday" : "Lunedì", "Tuesday" : "Martedì", "Wednesday" : "Mercoledì", "Thursday" : "Giovedì", "Friday" : "Venerdì", "Saturday" : "Sabato", "Sunday" : "Domenica"}
         day = datetime.datetime.fromtimestamp(timestamp).strftime("%A")
         if datetime.datetime.now().strftime("%A") in day:
             return "Today " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
         else:
-            return day + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
+            return translate[day] + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
     
 
 
