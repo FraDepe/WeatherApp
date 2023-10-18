@@ -205,8 +205,8 @@ class ForecastPage(Screen):
                     text = self.getDay(x['dt'])
                 ),
             )
-            info.ids['humid'].text = str(x['main']['humidity']) + " %"
-            info.ids['temp'].text = str(round(x['main']['temp'])) + " °C"
+            info.ids['humid'].text = str(x['main']['humidity']) + "%"
+            info.ids['temp'].text = str(round(x['main']['temp'])) + "°C"
             info.ids['press'].text = str(x['main']['pressure']) + " hPa"
             info.ids['wind'].text = str(round(x['wind']['speed']*3.6)) + " Km/h"
             self.ids.forecast_container.add_widget(panel)
@@ -218,27 +218,28 @@ class ForecastPage(Screen):
 
         # Se ho una richiesta generale (senza orario) ad un giorno futuro diverso da oggi
         if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp = self.getGeneralWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi"
+            main_weather, main_temp, main_wind = self.getGeneralWeather()
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}"
         
         # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
         elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp = self.getSpecificWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
+            main_weather, main_temp, main_wind = self.getSpecificWeather()
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
             
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
             main_weather = self.response_today['weather'][0]['main']
             main_temp = round(self.response_today['main']['temp'])
-            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
+            main_wind = self.response_today['wind']['speed']
+            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
 
         # Se ho una richiesta specifica (con orario) per oggi
         elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
             if self.hour < str(datetime.datetime.now())[11:16]:
                 frase = f"Le {self.hour} sono già passate, prova con un altro orario"
             else:
-                main_weather, main_temp = self.getSpecificWeather()
-                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi"
+                main_weather, main_temp, main_wind = self.getSpecificWeather()
+                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
 
         print(frase)
         tts.speak(frase)
@@ -261,14 +262,16 @@ class ForecastPage(Screen):
                 if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day and custom_hour in str(datetime.datetime.fromtimestamp(desc['dt'])):
                     weather = desc['weather'][0]['main']
                     temp = desc['main']['temp']
+                    wind = desc['wind']['speed']*3.6
 
-        return weather, round(temp)
+        return weather, round(temp), wind
 
 
     # Risposta a richiesta futura generale (senza orario)
     def getGeneralWeather(self):  
         stats = {}
         avarage_temp = 0
+        average_wind = 0
         for desc in self.response_forecast['list']:
             if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day:
                 if desc['weather'][0]['main'] in stats:
@@ -276,6 +279,7 @@ class ForecastPage(Screen):
                 else:
                     stats.update({desc['weather'][0]['main']: 1})
                 avarage_temp += desc['main']['temp']
+                average_wind += desc['wind']['speed']*3.6
 
         highest = ""
         temp = 0 
@@ -284,7 +288,23 @@ class ForecastPage(Screen):
             if stats[key] > temp:
                 highest = key
                 temp = stats[key]
-        return highest, round(avarage_temp/8)
+        return highest, round(avarage_temp/8), round(average_wind/8)
+
+
+    # Funzione che traduce il valore del vento per la risposta vocale
+    def windTranslate(self, wind):
+        if wind <= 5:
+            return "vento calmo"
+        elif wind <= 18:
+            return "una brezza leggera"
+        elif wind <= 38:
+            return "vento moderato"
+        elif wind <= 60:
+            return "vento forte"
+        elif wind <= 88:
+            return "una forte burrasca"
+        else:
+            return "una forte tempesta"
 
 
     # Funzione che traduce self.day in italiano per la risposta vocale
