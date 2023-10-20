@@ -79,7 +79,7 @@ class MainPage(Screen):
             return False
 
 
-    # Funzione eseguita in caso di errore da parte dell'engine
+    # Funzione eseguita in caso di errore da parte dell'engine vocale
     def openAlertDialog(self):
         self.dialog = MDDialog(
             text="Non è stato trovato nessun engine vocale"
@@ -218,28 +218,41 @@ class ForecastPage(Screen):
 
         # Se ho una richiesta generale (senza orario) ad un giorno futuro diverso da oggi
         if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp, main_wind = self.getGeneralWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}"
-        
+            main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather()
+            if "temperatura" not in self.sentence:
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+            else:
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con il {main_hum} percento di umidità media"
+
         # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
         elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp, main_wind = self.getSpecificWeather()
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
-            
+            main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather()
+            if "temperatura" not in self.sentence:
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+            else:
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità"
+
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
             main_weather = self.response_today['weather'][0]['main']
             main_temp = round(self.response_today['main']['temp'])
             main_wind = self.response_today['wind']['speed']
-            frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+            main_hum = self.response_today['main']['humidity']
+            if "temperatura" not in self.sentence:
+                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+            else:
+                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità"
 
         # Se ho una richiesta specifica (con orario) per oggi
         elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
             if self.hour < str(datetime.datetime.now())[11:16]:
                 frase = f"Le {self.hour} sono già passate, prova con un altro orario"
             else:
-                main_weather, main_temp, main_wind = self.getSpecificWeather()
-                frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+                main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather()
+                if "temperatura" not in self.sentence:
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+                else:
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità"                    
 
         print(frase)
         tts.speak(frase)
@@ -263,8 +276,9 @@ class ForecastPage(Screen):
                     weather = desc['weather'][0]['main']
                     temp = desc['main']['temp']
                     wind = desc['wind']['speed']*3.6
+                    hum = desc['main']['humidity']
 
-        return weather, round(temp), wind
+        return weather, round(temp), wind, hum
 
 
     # Risposta a richiesta futura generale (senza orario)
@@ -272,6 +286,7 @@ class ForecastPage(Screen):
         stats = {}
         avarage_temp = 0
         average_wind = 0
+        average_hum = 0
         for desc in self.response_forecast['list']:
             if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day:
                 if desc['weather'][0]['main'] in stats:
@@ -280,6 +295,7 @@ class ForecastPage(Screen):
                     stats.update({desc['weather'][0]['main']: 1})
                 avarage_temp += desc['main']['temp']
                 average_wind += desc['wind']['speed']*3.6
+                average_hum += desc['main']['humidity']
 
         highest = ""
         temp = 0 
@@ -288,7 +304,7 @@ class ForecastPage(Screen):
             if stats[key] > temp:
                 highest = key
                 temp = stats[key]
-        return highest, round(avarage_temp/8), round(average_wind/8)
+        return highest, round(avarage_temp/8), round(average_wind/8), round(average_hum/8)
 
 
     # Funzione che traduce il valore del vento per la risposta vocale
