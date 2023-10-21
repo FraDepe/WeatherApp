@@ -168,9 +168,13 @@ class ForecastPage(Screen):
 
         if self.diffInDays(self.day) > 4:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
             return
         elif self.diffInDays(self.day) == -1:
             tts.speak("Specificare un giorno del mese valido")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
             return
         else:
             self.responseToAudio()
@@ -180,12 +184,16 @@ class ForecastPage(Screen):
     # Funzione chiamata in caso di località non trovata
     def gotNoCoordinates(self):
         tts.speak("Località non trovata")
+        self.manager.current = 'main'
+        self.manager.transition.direction = 'right'
         return
 
 
     # Funzione chiamata in caso di errore da parte della UrlRequest
     def gotAnError(self, req, r):
         tts.speak("C'è stato un errore con la richiesta al servizio per le previsioni")
+        self.manager.current = 'main'
+        self.manager.transition.direction = 'right'
         return
 
 
