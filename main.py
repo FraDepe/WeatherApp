@@ -516,7 +516,7 @@ class ForecastPage(Screen):
         translate = {"Monday" : "Lunedì", "Tuesday" : "Martedì", "Wednesday" : "Mercoledì", "Thursday" : "Giovedì", "Friday" : "Venerdì", "Saturday" : "Sabato", "Sunday" : "Domenica"}
         day = datetime.datetime.fromtimestamp(timestamp).strftime("%A")
         if datetime.datetime.now().strftime("%A") in day:
-            return "Today " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
+            return "Oggi " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
         else:
             return translate[day] + " " + str(datetime.datetime.fromtimestamp(timestamp))[11:16]
     
