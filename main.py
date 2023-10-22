@@ -461,6 +461,8 @@ class ForecastPage(Screen):
     def diffInDays(self, day):
         if day == None:
             return 6
+        if day == -1:
+            return -1
         today = datetime.date.today()
         diff = 0
         while day != today.strftime("%A"):
