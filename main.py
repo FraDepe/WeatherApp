@@ -121,8 +121,6 @@ class ForecastPage(Screen):
             self.manager.current = 'main'
             self.manager.transition.direction = 'right'
             return
-        
-        self.ids['topappbar'].title = self.location
 
         self.day, self.hour = self.extractTime(self.sentence)
 
@@ -144,6 +142,7 @@ class ForecastPage(Screen):
             return
         self.latitude = r[0]['lat']
         self.longitude = r[0]['lon']
+        self.ids['topappbar'].title = self.location
         
         UrlRequest(f"https://api.openweathermap.org/data/2.5/weather?lat={str(self.latitude)}&lon={str(self.longitude)}&appid=c0b583a8bb8b03e64dd0e16bccda95bf&units=metric", on_success=self.gotWeatherToday, on_error=self.gotAnError, on_failure=self.gotAnError)
 
