@@ -77,12 +77,12 @@ PageManager:
             source: 'media/temp.png'
             size_hint_y: None
             size_hint_x: 0.65
-            width: self.parent.width*0.7
-            height: self.parent.height*0.7
+            width: self.parent.width*0.9
+            height: self.parent.height*0.9
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: temp  
-            font_size: '15sp'
+            font_size: '13sp'
         
     MDBoxLayout:
         orientation: 'horizontal'
@@ -90,12 +90,12 @@ PageManager:
             source: 'media/humidity.png'
             size_hint_y: None
             size_hint_x: 0.65
-            width: self.parent.width*0.7
-            height: self.parent.height*0.7
+            width: self.parent.width*0.9
+            height: self.parent.height*0.9
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: humid
-            font_size: '15sp'
+            font_size: '13sp'
     
     MDBoxLayout:
         orientation: 'horizontal'
@@ -103,12 +103,12 @@ PageManager:
             source: 'media/pressure.png'
             size_hint_y: None
             size_hint_x: 0.65
-            width: self.parent.width*0.7
-            height: self.parent.height*0.7
+            width: self.parent.width*0.9
+            height: self.parent.height*0.9
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: press
-            font_size: '15sp'
+            font_size: '13sp'
         
     MDBoxLayout:
         orientation: 'horizontal'
@@ -116,22 +116,9 @@ PageManager:
             source: 'media/wind.png'
             size_hint_y: None
             size_hint_x: 0.65
-            width: self.parent.width*0.7
-            height: self.parent.height*0.7
+            width: self.parent.width*0.9
+            height: self.parent.height*0.9
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDLabel:
             id: wind
-            font_size: '15sp'
-
-
-
-<RoundedButton@Button>:
-    background_color: (0,0,0,0)
-    background_normal: ''
-    canvas.before:
-        Color:
-            rgba: (234/255, 123/255, 65/255, 1)
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [35]
+            font_size: '13sp'
