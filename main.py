@@ -163,8 +163,6 @@ class ForecastPage(Screen):
             return
         self.response_forecast=r
 
-        self.getToday(self.response_today, self.response_forecast)
-
         if self.diffInDays(self.day) > 4:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             self.manager.current = 'main'
@@ -176,6 +174,7 @@ class ForecastPage(Screen):
             self.manager.transition.direction = 'right'
             return
         else:
+            self.getToday(self.response_today, self.response_forecast)
             self.responseToAudio()
         return
 
@@ -479,6 +478,7 @@ class ForecastPage(Screen):
         self.manager.transition.direction = 'right'
         self.response_today = None
         self.response_forecast = None
+        self.ids['topappbar'].title = ""
         self.sentence = ""
         self.day = ""
         self.hour = ""
@@ -496,6 +496,7 @@ class ForecastPage(Screen):
                 self.manager.transition.direction = 'right'
                 self.response_today = None
                 self.response_forecast = None
+                self.ids['topappbar'].title = ""
                 self.sentence = ""
                 self.day = ""
                 self.hour = ""
