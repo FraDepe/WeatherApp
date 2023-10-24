@@ -129,11 +129,12 @@ class ForecastPage(Screen):
         if self.day == 0: 
             self.day = datetime.date.today().strftime("%A") 
 
-        if not self.check_hour(self.hour):
-            tts.speak("Orario non valido")
-            self.manager.current = 'main'
-            self.manager.transition.direction = 'right'
-            return
+        if type(self.hour) == str:
+            if not self.check_hour(self.hour):
+                tts.speak("Orario non valido")
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                return
 
         print(self.sentence)
         print(self.location)
