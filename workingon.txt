@@ -1,12 +1,16 @@
 
 Richiesta (con domanda) da page forecast per la stessa località (senza buttare le informazioni)
-Audio iniziale per informare di premere il microfono/schermo con informazione sul fatto che c'è il limite di 5 giorni
-Attesa per il silenzio più lungo
-Test con persone ipovedenti e non
+	Aggiungere a fine frase allo speak() "Per altre richieste sul tempo a (città) premere sulla parte alta dello schermo"
+
+
+
 Alternativa degli expansion table con vocali descrittivi le righe (limitandomi alla giornata) (ForecastScreen alternativo)
+
 (Descrizione della foto del cielo) --> Palette di colori dominante (accesso alla telecamera)
 
+Test con persone ipovedenti e non
 
 
-
-
+FATTO?:
+Audio iniziale per informare di premere il microfono/schermo con informazione sul fatto che c'è il limite di 5 giorni
+Attesa per il silenzio più lungo

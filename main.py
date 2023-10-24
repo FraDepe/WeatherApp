@@ -26,6 +26,8 @@ class MainPage(Screen):
     def on_start(self): 
         EventLoop.window.bind(on_keyboard=self.key_pressed)
 
+    def on_enter(self):
+        tts.speak("Applicazione aperta, toccare lo schermo e aspettare il segnale acustico per fare la richiesta. Previsioni disponibili fino a 5 giorni compreso oggi.")
 
     # Funzione eseguita alla pressione del microfono per cominciare ad eseguire le funzione dello stt    
     def listenToSearch(self):        
@@ -37,7 +39,7 @@ class MainPage(Screen):
         self.sentence = ""
         try:
             stt.start()
-            Clock.schedule_interval(self.check_state, 1 / 5)
+            Clock.schedule_interval(self.check_state, 4 / 5)
         except NotImplementedError:
             self.openAlertDialog()
         except:
@@ -102,6 +104,7 @@ class ForecastPage(Screen):
     latitude = ""
     longitude = ""
     sentence = ""
+    sentences = ""
     day = ""                # Opzionale di default datetime.datetime.today().strftime("%A") 
     hour = ""               # Opzionale (-1 se non specificato)
     location = ""           # Obbligatorio
@@ -123,6 +126,14 @@ class ForecastPage(Screen):
             return
 
         self.day, self.hour = self.extractTime(self.sentence)
+        if self.day == 0: 
+            self.day = datetime.date.today().strftime("%A") 
+
+        if not self.check_hour(self.hour):
+            tts.speak("Orario non valido")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
+            return
 
         print(self.sentence)
         print(self.location)
@@ -179,6 +190,80 @@ class ForecastPage(Screen):
         return
 
 
+     # Funzione che esegue l'engine vocale per il riconoscimento delle frasi
+    def new_request(self):
+        self.sentence = ""
+        try:
+            stt.start()
+            Clock.schedule_interval(self.check_state, 4 / 5)
+        except NotImplementedError:
+            self.openAlertDialog()
+        except:
+            tts.speak("Qualcosa è andato storto, riprova")
+
+
+    # Funzione eseguita una volta che l'engine ha rilevato che nessuno sta parlando
+    def stop_listening_for_new_request(self):      
+        stt.stop()
+        self.update()
+        Clock.unschedule(self.check_state)
+
+        if self.sentences == []:
+            self.noSentences()
+            return
+        
+        self.sentence = self.sentences[0]
+
+        new_day, new_hour = self.extractTime(self.sentence) 
+        print(new_day, new_hour)
+
+        if new_hour != -1 and new_day != 0: 
+            self.newAudioResponse(new_hour, new_day) 
+        elif new_hour != -1: 
+            self.newAudioResponse(new_hour, None) 
+        elif new_day != 0: 
+            self.newAudioResponse(None, new_day) 
+        else: 
+            tts.speak("Non ho capito, riprova") 
+        return
+
+
+    # Funzione per il nuovo response audio
+    def newAudioResponse(self, hour, day):        
+        # dovrei modificare getGeneralWeather e quell'altra in modo che prenda valori hour e day da input e non dalla classe
+        if hour == None:
+            main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather(day)
+            frase = f"{self.dayTranslate(day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+
+        elif day == None:
+            main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(hour, self.day)
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+
+        else:
+            main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(hour, day)
+            frase = f"{self.dayTranslate(day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+
+        tts.speak(frase)
+        return 
+
+
+    # Funzione chiamata in loop mentre l'engine ascolta per controllare se si sta ancora parlando o no
+    def check_state(self, dt):
+        if not stt.listening:
+            self.stop_listening_for_new_request()
+
+
+    # Funzione chiamata per ottenere la frase catturata dall'engine
+    def update(self):
+        self.sentences = stt.results
+
+
+    # Funzione chiamata in caso non sia stata catturata nessuna frase
+    def noSentences(self):
+        tts.speak("Non ho capito, ripetere per favore")
+        return
+
+
     # Funzione chiamata in caso di località non trovata
     def gotNoCoordinates(self):
         tts.speak("Località non trovata")
@@ -224,19 +309,19 @@ class ForecastPage(Screen):
 
         # Se ho una richiesta generale (senza orario) ad un giorno futuro diverso da oggi
         if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather()
+            main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather(self.day)
             if "temperatura" not in self.sentence:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
             else:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con il {main_hum} percento di umidità media"
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con il {main_hum} percento di umidità media. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
 
         # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
         elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
-            main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather()
+            main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(self.hour, self.day)
             if "temperatura" not in self.sentence:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
             else:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità"
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
 
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
@@ -254,11 +339,11 @@ class ForecastPage(Screen):
             if self.hour < str(datetime.datetime.now())[11:16]:
                 frase = f"Le {self.hour} sono già passate, prova con un altro orario"
             else:
-                main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather()
+                main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(self.hour, self.day)
                 if "temperatura" not in self.sentence:
-                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}"
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
                 else:
-                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità"                    
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"                    
 
         print(frase)
         tts.speak(frase)
@@ -266,19 +351,19 @@ class ForecastPage(Screen):
 
 
     # Risposta a richiesta futura specifica (con orario)
-    def getSpecificWeather(self):
+    def getSpecificWeather(self, hour, day):
         available_hours = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
-        if self.hour not in available_hours:
-            if self.hour < available_hours[0] or self.hour > available_hours[-1]:
+        if hour not in available_hours:
+            if hour < available_hours[0] or hour > available_hours[-1]:
                 custom_hour = available_hours[0]
             for x in range(0, len(available_hours)-1):
-                if self.hour > available_hours[x] and self.hour < available_hours[x+1]:
+                if hour > available_hours[x] and hour < available_hours[x+1]:
                     custom_hour = available_hours[x+1]
         else:
-            custom_hour = self.hour
+            custom_hour = hour
 
         for desc in self.response_forecast['list']:
-                if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day and custom_hour in str(datetime.datetime.fromtimestamp(desc['dt'])):
+                if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == day and custom_hour in str(datetime.datetime.fromtimestamp(desc['dt'])):
                     weather = desc['weather'][0]['main']
                     temp = desc['main']['temp']
                     wind = desc['wind']['speed']*3.6
@@ -288,13 +373,13 @@ class ForecastPage(Screen):
 
 
     # Risposta a richiesta futura generale (senza orario)
-    def getGeneralWeather(self):  
+    def getGeneralWeather(self, day):  
         stats = {}
         avarage_temp = 0
         average_wind = 0
         average_hum = 0
         for desc in self.response_forecast['list']:
-            if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == self.day:
+            if datetime.datetime.fromtimestamp(desc['dt']).strftime("%A") == day:
                 if desc['weather'][0]['main'] in stats:
                     stats.update({desc['weather'][0]['main']: stats[desc['weather'][0]['main']] + 1})
                 else:
@@ -311,6 +396,13 @@ class ForecastPage(Screen):
                 highest = key
                 temp = stats[key]
         return highest, round(avarage_temp/8), round(average_wind/8), round(average_hum/8)
+
+
+    # Funzione per controllare che l'orario inserito sia valido
+    def check_hour(self, hour):
+        if hour.split(":")[0] > 24 or hour.split(":")[1] > 59:
+            return False
+        return True
 
 
     # Funzione che traduce il valore del vento per la risposta vocale
@@ -389,7 +481,7 @@ class ForecastPage(Screen):
     # Funzione che estrae dalla frase il giorno e l'orario richiesto (l'orario se non viene specificato è -1)
     def extractTime(self, frase):
         orario = -1
-        giorno = datetime.date.today().strftime("%A")
+        giorno = 0
         giorno_del_mese = None
 
         if "l'una" in frase:

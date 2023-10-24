@@ -8,25 +8,29 @@ PageManager:
 <MainPage>:
     id: main_page
     name: 'main' 
-
-    BoxLayout:
-        orientation: 'vertical'
-        size: root.size
-        spacing: 10
-        padding: 10
-        canvas.before:
-            Color:
-                rgba: (59/255, 124/255, 222/255, 1)
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        Image:
-            source: 'media/world.png'
-            size_hint: (1, 0.5)
-        ImageButton:
-            id: microphone
-            source: 'media/mic2.png'
-            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence   
+    MDFloatLayout:
+        Button:
+            text: ""
+            background_color: 0, 0, 0, 0
+            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence
+        BoxLayout:
+            orientation: 'vertical'
+            size: root.size
+            spacing: 10
+            padding: 10
+            canvas.before:
+                Color:
+                    rgba: (59/255, 124/255, 222/255, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Image:
+                source: 'media/world.png'
+                size_hint: (1, 0.5)
+            ImageButton:
+                id: microphone
+                source: 'media/mic2.png'
+                on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence   
 
 
 <ForecastPage>:
@@ -35,7 +39,7 @@ PageManager:
         Button:
             text:""
             background_color: 0,0,0,0
-            #on_touch_down: root.responseToAudio()  
+            on_touch_down: root.new_request() 
         MDBoxLayout:
             orientation: 'vertical'
             md_bg_color: 59/255, 124/255, 222/255, 1
