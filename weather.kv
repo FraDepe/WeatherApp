@@ -3,6 +3,7 @@
 PageManager:
     MainPage:
     ForecastPage:
+    ForecastPageBlind:
 
 
 <MainPage>:
@@ -12,7 +13,7 @@ PageManager:
         Button:
             text: ""
             background_color: 0, 0, 0, 0
-            on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence
+            on_press: root.listenToSearch()
         BoxLayout:
             orientation: 'vertical'
             size: root.size
@@ -30,7 +31,7 @@ PageManager:
             ImageButton:
                 id: microphone
                 source: 'media/mic2.png'
-                on_press: root.listenToSearch(); root.manager.screens[1].sentence = root.manager.screens[0].sentence   
+                on_press: root.listenToSearch()
 
 
 <ForecastPage>:
@@ -68,8 +69,35 @@ PageManager:
                         size_hint_y: None
                         height: self.minimum_height
 
-        
-        
+
+<ForecastPageBlind>:
+    name: 'forecastblind'
+    MDFloatLayout:
+        id: forecastblind_container
+        md_bg_color: 59/255, 124/255, 222/255, 1
+        Button:
+            text:""
+            background_color: 1,0,0,0
+            size_hint: 1, 0.5
+            pos_hint: {'y':0.5}
+            on_press: root.new_request()  
+        Button:
+            text:""
+            background_color: 0,1,0,0
+            size_hint: 1, 0.5
+            on_press: root.next() 
+        MDBoxLayout:
+            orientation: 'vertical'
+            MDTopAppBar:
+                id: topappbar_blind
+                elevation: 5
+                left_action_items: [ ["arrow-left", lambda x: root.goBack()] ]
+            Image:
+                id: today_icon_blind
+                source: "media/default.png"
+                size_hint: (0.8, 0.63)
+                pos_hint: {'center_x': 0.5}
+
 
 <HourlyForecast>:
     size_hint: 1, None
