@@ -225,6 +225,18 @@ class ForecastPage(Screen):
         self.sentence = self.sentences[0]
 
         new_day, new_hour = self.extractTime(self.sentence) 
+
+        if new_day == -1:
+            tts.speak("Giorno non valido.")
+            return
+        elif new_day == None:
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+
+        if type(self.hour) == str:
+            if not self.check_hour(self.hour):
+                tts.speak("Orario non valido")
+                return
+
         print(new_day, new_hour)
 
         # add check on day and hour
@@ -651,6 +663,7 @@ class ForecastPageBlind(Screen):
     hour = ""               # Opzionale (-1 se non specificato)
     location = ""           # Obbligatorio
     to_tell = 0
+    istruction_told_one = False
 
 
     # Funzione chiamata all'avvio della nuova pagina e si occupa di popolarla di widget (immagine in questo caso)
@@ -1098,16 +1111,20 @@ class ForecastPageBlind(Screen):
         # dovrei modificare getGeneralWeather e quell'altra in modo che prenda valori hour e day da input e non dalla classe
         if hour == None:
             main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather(day)
-            frase = f"{self.dayTranslate(day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+            frase = f"{self.dayTranslate(day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
 
         elif day == None:
             main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(hour, self.day)
-            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+            frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
 
         else:
             main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(hour, day)
-            frase = f"{self.dayTranslate(day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+            frase = f"{self.dayTranslate(day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
 
+        if not self.istruction_told_one:
+            frase += f"Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+            self.istruction_told_one = True
+            
         tts.speak(frase)
         return 
 
