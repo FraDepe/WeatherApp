@@ -232,6 +232,12 @@ class ForecastPage(Screen):
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
 
+        if self.diffInDays(self.day) > 4:
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
+            return
+
         if type(self.hour) == str:
             if not self.check_hour(self.hour):
                 tts.speak("Orario non valido")
@@ -241,11 +247,13 @@ class ForecastPage(Screen):
 
         # add check on day and hour
 
-        if new_hour != -1 and new_day != 0: 
+        if new_hour != -1 and new_day != 0:
+            self.day = new_day
             self.newAudioResponse(new_hour, new_day) 
         elif new_hour != -1: 
             self.newAudioResponse(new_hour, None) 
-        elif new_day != 0: 
+        elif new_day != 0:
+            self.day = new_day
             self.newAudioResponse(None, new_day) 
         else: 
             tts.speak("Non ho capito, riprova") 
@@ -380,9 +388,10 @@ class ForecastPage(Screen):
         if hour not in available_hours:
             if hour < available_hours[0] or hour > available_hours[-1]:
                 custom_hour = available_hours[0]
-            for x in range(0, len(available_hours)-1):
-                if hour > available_hours[x] and hour < available_hours[x+1]:
-                    custom_hour = available_hours[x+1]
+            else:
+                for x in range(0, len(available_hours)-1):
+                    if hour > available_hours[x] and hour < available_hours[x+1]:
+                        custom_hour = available_hours[x+1]
         else:
             custom_hour = hour
 
@@ -424,7 +433,7 @@ class ForecastPage(Screen):
 
     # Funzione per controllare che l'orario inserito sia valido
     def check_hour(self, hour):
-        if hour.split(":")[0] > 24 or hour.split(":")[1] > 59:
+        if int(hour.split(":")[0]) > 24 or int(hour.split(":")[1]) > 59:
             return False
         return True
 
@@ -685,11 +694,29 @@ class ForecastPageBlind(Screen):
         if self.day == 0: 
             self.day = datetime.date.today().strftime("%A") 
 
+        if type(self.hour) == str:
+            if not self.check_hour(self.hour):
+                tts.speak("Orario non valido")
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                return
+
         print(self.sentence)
         print(self.location)
         print(self.day)
         print(self.hour)
         print(self.diffInDays(self.day))
+
+        if self.diffInDays(self.day) > 4:
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
+            return
+        elif self.diffInDays(self.day) == -1:
+            tts.speak("Specificare un giorno del mese valido")
+            self.manager.current = 'main'
+            self.manager.transition.direction = 'right'
+            return
 
         UrlRequest(f"http://api.openweathermap.org/geo/1.0/direct?q={self.location.replace(' ', '+')}&limit=1&appid=c0b583a8bb8b03e64dd0e16bccda95bf", on_success=self.gotCoordinates, on_error=self.gotAnError, on_failure=self.gotAnError)
         return
@@ -804,9 +831,10 @@ class ForecastPageBlind(Screen):
         if hour not in available_hours:
             if hour < available_hours[0] or hour > available_hours[-1]:
                 custom_hour = available_hours[0]
-            for x in range(0, len(available_hours)-1):
-                if hour > available_hours[x] and hour < available_hours[x+1]:
-                    custom_hour = available_hours[x+1]
+            else:
+                for x in range(0, len(available_hours)-1):
+                    if hour > available_hours[x] and hour < available_hours[x+1]:
+                        custom_hour = available_hours[x+1]
         else:
             custom_hour = hour
 
@@ -1068,6 +1096,13 @@ class ForecastPageBlind(Screen):
             return False
 
 
+    # Funzione per controllare che l'orario inserito sia valido
+    def check_hour(self, hour):
+        if int(hour.split(":")[0]) > 24 or int(hour.split(":")[1]) > 59:
+            return False
+        return True
+
+
     # Funzione che esegue l'engine vocale per il riconoscimento delle frasi
     def new_request(self):
         self.sentence = ""
@@ -1095,11 +1130,18 @@ class ForecastPageBlind(Screen):
         new_day, new_hour = self.extractTime(self.sentence) 
         print(new_day, new_hour)
 
+        if type(self.hour) == str:
+            if not self.check_hour(self.hour):
+                tts.speak("Orario non valido")
+                return
+
         if new_hour != -1 and new_day != 0: 
+            self.day = new_day
             self.newAudioResponse(new_hour, new_day) 
         elif new_hour != -1: 
             self.newAudioResponse(new_hour, None) 
-        elif new_day != 0: 
+        elif new_day != 0:
+            self.day = new_day
             self.newAudioResponse(None, new_day) 
         else: 
             tts.speak("Non ho capito, riprova") 
