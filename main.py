@@ -789,6 +789,14 @@ class ForecastPageBlind(Screen):
         elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
             if self.hour < str(datetime.datetime.now())[11:16]:
                 frase = f"Le {self.hour} sono già passate, prova con un altro orario"
+                self.ids['today_icon_blind'].source = "media/default.png"
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                self.ids['topappbar_blind'].title = ""
+                self.sentence = ""
+                self.day = ""
+                self.hour = ""
+                self.location = ""
             else:
                 main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(self.hour, self.day) 
                 if "temperatura" not in self.sentence:
@@ -1087,7 +1095,7 @@ class ForecastPageBlind(Screen):
                 self.manager.transition.direction = 'right'
                 self.response_today = None
                 self.response_forecast = None
-                self.ids['topappbar'].title = ""
+                self.ids['topappbar_blind'].title = ""
                 self.sentence = ""
                 self.day = ""
                 self.hour = ""
