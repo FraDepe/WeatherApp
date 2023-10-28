@@ -232,7 +232,7 @@ class ForecastPage(Screen):
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
-        if self.diffInDays(self.day) > 4:
+        if self.diffInDays(new_day) > 4:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
 
@@ -819,7 +819,7 @@ class ForecastPageBlind(Screen):
             return
         translate = {"Monday" : "Lunedì", "Tuesday" : "Martedì", "Wednesday" : "Mercoledì", "Thursday" : "Giovedì", "Friday" : "Venerdì", "Saturday" : "Sabato", "Sunday" : "Domenica"}
         info_table = self.response_forecast['list'][self.to_tell]
-        time = str(datetime.datetime.fromtimestamp(info_table['dt'])).split(" ")[1]
+        time = str(datetime.datetime.fromtimestamp(info_table['dt'])).split(" ")[1][:-3]
         if datetime.datetime.fromtimestamp(info_table['dt']).strftime("%A") == datetime.datetime.today().strftime("%A"):
             day = "Oggi"
         else:
@@ -1147,7 +1147,7 @@ class ForecastPageBlind(Screen):
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
-        if self.diffInDays(self.day) > 4:
+        if self.diffInDays(new_day) > 4:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
 
@@ -1171,7 +1171,7 @@ class ForecastPageBlind(Screen):
 
     # Funzione per il nuovo response audio
     def newAudioResponse(self, hour, day):        
-        # dovrei modificare getGeneralWeather e quell'altra in modo che prenda valori hour e day da input e non dalla classe
+
         if hour == None:
             main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather(day)
             frase = f"{self.dayTranslate(day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
@@ -1184,9 +1184,9 @@ class ForecastPageBlind(Screen):
             main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(hour, day)
             frase = f"{self.dayTranslate(day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
 
-        if not self.istruction_told_one:
-            frase += f"Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
-            self.istruction_told_one = True
+        # if not self.istruction_told_one:
+        #     frase += f"Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+        #     self.istruction_told_one = True
             
         tts.speak(frase)
         return 
