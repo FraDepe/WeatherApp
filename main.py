@@ -29,7 +29,7 @@ class MainPage(Screen):
 
     def on_enter(self):
         if not self.talked:
-            tts.speak("Toccare lo schermo e aspettare il segnale acustico per fare la richiesta. Previsioni disponibili fino a 5 giorni compreso oggi. È necessario specificare la località a fine frase. Per entrare nella modalità per non vedenti, aggiungere ad inizio richiesta, non ci vedo.")
+            tts.speak("Toccare lo schermo e aspettare il segnale acustico per fare la richiesta. Previsioni disponibili fino a 5 giorni compreso oggi. È necessario specificare la località a fine frase. Per entrare nella modalità per non vedenti, aggiungere ad inizio richiesta, non vedente.")
             self.talked = True
 
     # Funzione eseguita alla pressione del microfono per cominciare ad eseguire le funzione dello stt    
@@ -60,7 +60,7 @@ class MainPage(Screen):
             return
         self.sentence = self.sentences[0]
 
-        if "Non ci vedo" in self.sentence or "non ci vedo" in self.sentence:
+        if "non vedente" in self.sentence or "Non vedente" in self.sentence:
             self.manager.current = 'forecastblind'
             self.manager.transition.direction = 'left'
         else:
