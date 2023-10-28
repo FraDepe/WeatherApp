@@ -231,11 +231,9 @@ class ForecastPage(Screen):
             return
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
-
+            return
         if self.diffInDays(self.day) > 4:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
-            self.manager.current = 'main'
-            self.manager.transition.direction = 'right'
             return
 
         if type(self.hour) == str:
@@ -384,10 +382,14 @@ class ForecastPage(Screen):
 
     # Risposta a richiesta futura specifica (con orario)
     def getSpecificWeather(self, hour, day):
-        available_hours = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
+        available_hours_temp = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
+        available_hours = ("01:00", "04:00", "07:00", "10:00", "13:00", "16:00", "19:00", "22:00")
         if hour not in available_hours:
             if hour < available_hours[0] or hour > available_hours[-1]:
-                custom_hour = available_hours[0]
+                if "23" in hour or "24" in hour:
+                    custom_hour = available_hours[-1]
+                else:
+                    custom_hour = available_hours[0]
             else:
                 for x in range(0, len(available_hours)-1):
                     if hour > available_hours[x] and hour < available_hours[x+1]:
@@ -762,17 +764,17 @@ class ForecastPageBlind(Screen):
         if self.hour == -1 and self.day != datetime.datetime.today().strftime("%A"):
             main_weather, main_temp, main_wind, main_hum = self.getGeneralWeather(self.day) 
             if "temperatura" not in self.sentence:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
             else:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con il {main_hum} percento di umidità media. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location} sarà {self.weatherTranslate(main_weather)} con una temperaturà media di {main_temp} gradi e con il {main_hum} percento di umidità media. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
 
         # Se ho una richiesta specifica (con orario) ad un giorno futuro diverso da oggi
         elif self.hour != -1 and self.day != datetime.datetime.today().strftime("%A"):
             main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(self.hour, self.day) 
             if "temperatura" not in self.sentence:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
             else:
-                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"{self.dayTranslate(self.day)} il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
 
         # Se ho una richiesta generale (senza orario) per oggi
         elif self.hour == -1 and self.day == datetime.datetime.today().strftime("%A"):
@@ -781,9 +783,9 @@ class ForecastPageBlind(Screen):
             main_wind = self.response_today['wind']['speed']
             main_hum = self.response_today['main']['humidity']
             if "temperatura" not in self.sentence:
-                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
             else:
-                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                frase = f"Oggi il tempo a {self.location} è {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
 
         # Se ho una richiesta specifica (con orario) per oggi
         elif self.hour != -1 and self.day == datetime.datetime.today().strftime("%A"):
@@ -800,9 +802,9 @@ class ForecastPageBlind(Screen):
             else:
                 main_weather, main_temp, main_wind, main_hum = self.getSpecificWeather(self.hour, self.day) 
                 if "temperatura" not in self.sentence:
-                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperatura di {main_temp} gradi e con {self.windTranslate(main_wind)}. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
                 else:
-                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."                    
+                    frase = f"Oggi il tempo a {self.location}, verso le {self.hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con il {main_hum} percento di umidità. Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."                    
 
         print(frase)
         tts.speak(frase)
@@ -1172,7 +1174,7 @@ class ForecastPageBlind(Screen):
             frase = f"{self.dayTranslate(day)} il tempo a {self.location}, verso le {hour} sarà {self.weatherTranslate(main_weather)} con una temperaturà di {main_temp} gradi e con {self.windTranslate(main_wind)}. "
 
         if not self.istruction_told_one:
-            frase += f"Tocca la parte inferiore dello schermo per avere previsioni triorarie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
+            frase += f"Tocca la parte inferiore dello schermo per avere previsioni trioràrie dettagliate a partire da oggi, quella superiore invece per effettuare un'altra richiesta su {self.location}."
             self.istruction_told_one = True
             
         tts.speak(frase)
