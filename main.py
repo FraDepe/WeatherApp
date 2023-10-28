@@ -814,7 +814,8 @@ class ForecastPageBlind(Screen):
     # Funzione per la descrizione vocale sequenziale
     def next(self):
         if self.to_tell == 40:
-            tts.speak("Previsioni non più disponibili.")
+            tts.speak("Previsioni non più disponibili. Ricomincio")
+            self.to_tell = 0
             return
         translate = {"Monday" : "Lunedì", "Tuesday" : "Martedì", "Wednesday" : "Mercoledì", "Thursday" : "Giovedì", "Friday" : "Venerdì", "Saturday" : "Sabato", "Sunday" : "Domenica"}
         info_table = self.response_forecast['list'][self.to_tell]
@@ -1139,6 +1140,16 @@ class ForecastPageBlind(Screen):
 
         new_day, new_hour = self.extractTime(self.sentence) 
         print(new_day, new_hour)
+
+        if new_day == -1:
+            tts.speak("Giorno non valido.")
+            return
+        elif new_day == None:
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            return
+        if self.diffInDays(self.day) > 4:
+            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+            return
 
         if type(self.hour) == str:
             if not self.check_hour(self.hour):
