@@ -839,10 +839,14 @@ class ForecastPageBlind(Screen):
 
     # Risposta a richiesta futura specifica (con orario)
     def getSpecificWeather(self, hour, day): 
-        available_hours = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
+        available_hours_temp = ("02:00", "05:00", "08:00", "11:00", "14:00", "17:00", "20:00", "23:00")
+        available_hours = ("01:00", "04:00", "07:00", "10:00", "13:00", "16:00", "19:00", "22:00")
         if hour not in available_hours:
             if hour < available_hours[0] or hour > available_hours[-1]:
-                custom_hour = available_hours[0]
+                if "23" in hour or "24" in hour:
+                    custom_hour = available_hours[-1]
+                else:
+                    custom_hour = available_hours[0]
             else:
                 for x in range(0, len(available_hours)-1):
                     if hour > available_hours[x] and hour < available_hours[x+1]:
