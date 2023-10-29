@@ -232,9 +232,10 @@ class ForecastPage(Screen):
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
-        if self.diffInDays(new_day) > 4:
-            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
-            return
+        if new_day != 0:
+            if self.diffInDays(new_day) > 4:
+                tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+                return
 
         if type(self.hour) == str:
             if not self.check_hour(self.hour):
@@ -1147,9 +1148,10 @@ class ForecastPageBlind(Screen):
         elif new_day == None:
             tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
             return
-        if self.diffInDays(new_day) > 4:
-            tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
-            return
+        if new_day != 0:
+            if self.diffInDays(new_day) > 4:
+                tts.speak("Il giorno richiesto non rientra tra i giorni disponibili per la previsione")
+                return
 
         if type(self.hour) == str:
             if not self.check_hour(self.hour):
