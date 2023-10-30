@@ -29,8 +29,11 @@ class MainPage(Screen):
 
     def on_enter(self):
         if not self.talked:
-            tts.speak("Toccare lo schermo e aspettare il segnale acustico per fare la richiesta. Previsioni disponibili fino a 5 giorni compreso oggi. È necessario specificare la località a fine frase. Per entrare nella modalità per non vedenti, aggiungere ad inizio richiesta, non vedente.")
-            self.talked = True
+            try:
+                tts.speak("Toccare lo schermo e aspettare il segnale acustico per fare la richiesta. Previsioni disponibili fino a 5 giorni compreso oggi. È necessario specificare la località a fine frase. Per entrare nella modalità per non vedenti, aggiungere ad inizio richiesta, non vedente.")
+                self.talked = True
+            except NotImplementedError:
+                self.openAlertDialog()
 
     # Funzione eseguita alla pressione del microfono per cominciare ad eseguire le funzione dello stt    
     def listenToSearch(self):        
