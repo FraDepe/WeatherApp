@@ -825,7 +825,7 @@ class ForecastPageBlind(Screen):
     day = ""                # Opzionale, di default 0
     hour = ""               # Opzionale (-1 se non specificato)
     location = ""           # Obbligatorio
-    to_tell = 0
+    to_tell = []
     istruction_told_one = False
 
 
@@ -1035,27 +1035,37 @@ class ForecastPageBlind(Screen):
 
     # Funzione per la descrizione vocale sequenziale
     def next(self):
-        if self.to_tell == 40:
-            tts.speak("Previsioni non più disponibili. Ricomincio")
-            self.to_tell = 0
-            return
         translate = {"Monday" : "Lunedì", "Tuesday" : "Martedì", "Wednesday" : "Mercoledì", "Thursday" : "Giovedì", "Friday" : "Venerdì", "Saturday" : "Sabato", "Sunday" : "Domenica"}
-        info_table = self.response_forecast['list'][self.to_tell]
-        time = str(datetime.datetime.fromtimestamp(info_table['dt'])).split(" ")[1][:-3]
-        if datetime.datetime.fromtimestamp(info_table['dt']).strftime("%A") == datetime.datetime.today().strftime("%A"):
-            day = "Oggi"
+
+        # Se la lista di previsioni triorarie del giorno è vuota va popolata
+        if self.to_tell == []:
+            counter = 0
+            for info_table in self.response_forecast['list']:
+                if datetime.datetime.fromtimestamp(info_table['dt']).strftime("%A") == self.day:
+                    self.to_tell.append(counter)
+                counter += 1
+            self.to_tell.append(77)
+
+        # Se la lista di previsioni triorarie ha come primo e unico elemento 77 allora sono state date tutte le previsioni
+        if self.to_tell[0] == 77:
+            tts.speak("Previsioni per la giornata finite")
         else:
-            day = translate[datetime.datetime.fromtimestamp(info_table['dt']).strftime("%A")]
-        weather = info_table['weather'][0]['main']
-        temp = round(info_table['main']['temp'])
-        hum = info_table['main']['humidity']
-        press = info_table['main']['pressure']
-        wind = round(info_table['wind']['speed']*3.6)
-        frase = f"{day} alle {time} sarà {self.weatherTranslate(weather)} con temperatura di {temp} gradi, tasso di umidità del {hum} percento, pressione di {press} hPa e con {self.windTranslate(wind)}. "
-        # if not self.istruction_told:  # Dovrei implementare un nuovo set di funzioni per ascoltare dal microfono e capire se dice avanti, ripeti, indietro, stop o ricomincia
-        #     frase += ""
-        tts.speak(frase)
-        self.to_tell += 1
+            info_to_tell = self.response_forecast['list'][self.to_tell[0]]
+            time = str(datetime.datetime.fromtimestamp(info_to_tell['dt'])).split(" ")[1][:-3]
+            if datetime.datetime.fromtimestamp(info_to_tell['dt']).strftime("%A") == datetime.datetime.today().strftime("%A"):
+                day = "Oggi"
+            else:
+                day = translate[datetime.datetime.fromtimestamp(info_to_tell['dt']).strftime("%A")]
+            weather = info_to_tell['weather'][0]['main']
+            temp = round(info_to_tell['main']['temp'])
+            hum = info_to_tell['main']['humidity']
+            press = info_to_tell['main']['pressure']
+            wind = round(info_to_tell['wind']['speed']*3.6)
+            frase = f"{day} alle {time} sarà {self.weatherTranslate(weather)} con temperatura di {temp} gradi, tasso di umidità del {hum} percento, pressione di {press} hPa e con {self.windTranslate(wind)}."
+            self.to_tell.pop(0)
+            tts.speak(frase)
+            
+
 
 
     # Risposta a richiesta futura specifica (con orario)
