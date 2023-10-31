@@ -1,24 +1,11 @@
 Test con persone ipovedenti e non
 
-Dividere la giornata in mattina pomeriggio sera nottata. Con fascie orarie   AGIUNGI CHECK CHE LA MATTINATA/SERATA/POMERIGGIO NON SIA PASSATO SE FA RIFERIMENTO AD OGGI
-(Magari aggiungere anche una gestione del tipo "Dalle ... alle ...") 
+(Magari aggiungere anche una gestione del tipo "Dalle ... alle ...")
 
-Riformulare la frase dopo essere entrati in forecast (aggiunta di premere di nuovo per un'altra richiesta)
-
-Per la nuova richiesta tornare indietro (frase)
-
-Per una nuova richiesta cliccare in altro (frase)
-
-Descrizione trioraria esclusiva per la giornata in non vedenti
-in mode normale dare gli exp tab per la giornata e in caso fare tap centrale
-per aggiungere altri exp table da datetime.now() a tempo richiesto
-
+in mode normale dare gli exp tab per la giornata e in caso fare doppio tap
+per aggiungere altri exp table 
 Dato che metto solo gli exp tab della giornata richiesta fare in modo che vengano
-aggiornati con quelli nuovi (togliendo le inutili)
-
-Dividere lo schermo in tre zone (solo non vedente?)
-
-FERMARE LA VOCE a quanto pare non si può
+aggiornati con quelli nuovi ad ogni  (togliendo le inutili)
 
 Test del tap prolungato usando on_touch_down e on_touch_up
 (Presente in kivymd)
@@ -28,6 +15,6 @@ Risposta alle domande specifiche?????
 
 Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
 
-Gestire 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00, 11:00, 12:00, ... di pomeriggio/di sera
+Gestire 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00, 11:00, 12:00, ... di pomeriggio/di sera ( c'è sia "pomeriggio" che un orario nella frase)
 
 Altri test con persone nuove
