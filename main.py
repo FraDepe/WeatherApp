@@ -1337,7 +1337,7 @@ class ForecastPageBlind(Screen):
         self.location = ""
         self.response_today = None
         self.response_forecast = None
-        self.to_tell == []
+        self.to_tell.pop(0)
         tts.speak("Tornato indietro")
         return True
 
@@ -1356,7 +1356,7 @@ class ForecastPageBlind(Screen):
                 self.day = ""
                 self.hour = ""
                 self.location = ""
-                self.to_tell == []
+                self.to_tell.pop(0)
                 tts.speak("Tornato indietro")
                 return True
             return False
