@@ -1,6 +1,6 @@
 Test con persone ipovedenti e non
 
-Dividere la giornata in mattina pomeriggio sera nottata. Con fascie orarie
+Dividere la giornata in mattina pomeriggio sera nottata. Con fascie orarie   AGIUNGI CHECK CHE LA MATTINATA/SERATA/POMERIGGIO NON SIA PASSATO SE FA RIFERIMENTO AD OGGI
 (Magari aggiungere anche una gestione del tipo "Dalle ... alle ...") 
 
 Riformulare la frase dopo essere entrati in forecast (aggiunta di premere di nuovo per un'altra richiesta)
@@ -27,5 +27,7 @@ Risposta alle domande specifiche?????
 (PIOVE domani?, Che TEMPERATURA fa?, ...)
 
 Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
+
+Gestire 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00, 11:00, 12:00, ... di pomeriggio/di sera
 
 Altri test con persone nuove
