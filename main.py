@@ -304,9 +304,9 @@ class ForecastPage(Screen):
                     else:
                         result_weather = weather1
                     if "temperatura" not in self.sentence:
-                        frase = f"{self.dayTranslate(self.day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
+                        frase = f"{self.dayTranslate(self.day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}."
                     else:
-                        frase = f"{self.dayTranslate(self.day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con il {main_hum} percento di umidità. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
+                        frase = f"{self.dayTranslate(self.day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con il {main_hum} percento di umidità."
 
         else:
             if type(hour) != list:
@@ -343,9 +343,9 @@ class ForecastPage(Screen):
                     else:
                         result_weather = weather1
                     if "temperatura" not in self.sentence:
-                        frase = f"{self.dayTranslate(day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
+                        frase = f"{self.dayTranslate(day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con {self.windTranslate(main_wind)}."
                     else:
-                        frase = f"{self.dayTranslate(day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con il {main_hum} percento di umidità. Per altre richieste sul tempo a {self.location} premere sulla parte alta dello schermo"
+                        frase = f"{self.dayTranslate(day)} {fascia_oraria} il tempo a {self.location} sarà {result_weather} con una temperatura media di {main_temp} gradi e con il {main_hum} percento di umidità."
 
         tts.speak(frase)
         return 
@@ -854,6 +854,12 @@ class ForecastPageBlind(Screen):
                 self.manager.current = 'main'
                 self.manager.transition.direction = 'right'
                 return
+        if type(self.hour) == list and self.day == datetime.date.today().strftime("%A"):
+            if self.hour[0] < str(datetime.datetime.now())[11:16]:
+                frase = "La fascia oraria richiesta è già passata. Riprova"
+                self.manager.current = 'main'
+                self.manager.transition.direction = 'right'
+                return
 
         print(self.sentence)
         print(self.location)
@@ -1331,6 +1337,7 @@ class ForecastPageBlind(Screen):
         self.location = ""
         self.response_today = None
         self.response_forecast = None
+        self.to_tell == []
         tts.speak("Tornato indietro")
         return True
 
@@ -1349,6 +1356,7 @@ class ForecastPageBlind(Screen):
                 self.day = ""
                 self.hour = ""
                 self.location = ""
+                self.to_tell == []
                 tts.speak("Tornato indietro")
                 return True
             return False
