@@ -21,8 +21,11 @@ Dividere lo schermo in tre zone (solo non vedente?)
 FERMARE LA VOCE a quanto pare non si può
 
 Test del tap prolungato usando on_touch_down e on_touch_up
+(Presente in kivymd)
 
 Risposta alle domande specifiche?????
 (PIOVE domani?, Che TEMPERATURA fa?, ...)
+
+Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
 
 Altri test con persone nuove
