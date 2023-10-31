@@ -856,7 +856,7 @@ class ForecastPageBlind(Screen):
                 return
         if type(self.hour) == list and self.day == datetime.date.today().strftime("%A"):
             if self.hour[0] < str(datetime.datetime.now())[11:16]:
-                frase = "La fascia oraria richiesta è già passata. Riprova"
+                tts.speak("La fascia oraria richiesta è già passata. Riprova")
                 self.manager.current = 'main'
                 self.manager.transition.direction = 'right'
                 return
