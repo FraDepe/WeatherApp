@@ -22,4 +22,7 @@ FERMARE LA VOCE a quanto pare non si può
 
 Test del tap prolungato usando on_touch_down e on_touch_up
 
+Risposta alle domande specifiche?????
+(PIOVE domani?, Che TEMPERATURA fa?, ...)
+
 Altri test con persone nuove
