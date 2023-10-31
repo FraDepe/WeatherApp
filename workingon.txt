@@ -1,1 +1,25 @@
 Test con persone ipovedenti e non
+
+Dividere la giornata in mattina pomeriggio sera nottata. Con fascie orarie
+(Magari aggiungere anche una gestione del tipo "Dalle ... alle ...") 
+
+Riformulare la frase dopo essere entrati in forecast (aggiunta di premere di nuovo per un'altra richiesta)
+
+Per la nuova richiesta tornare indietro (frase)
+
+Per una nuova richiesta cliccare in altro (frase)
+
+Descrizione trioraria esclusiva per la giornata in non vedenti
+in mode normale dare gli exp tab per la giornata e in caso fare tap centrale
+per aggiungere altri exp table da datetime.now() a tempo richiesto
+
+Dato che metto solo gli exp tab della giornata richiesta fare in modo che vengano
+aggiornati con quelli nuovi (togliendo le inutili)
+
+Dividere lo schermo in tre zone (solo non vedente?)
+
+FERMARE LA VOCE a quanto pare non si può
+
+Test del tap prolungato usando on_touch_down e on_touch_up
+
+Altri test con persone nuove
