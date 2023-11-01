@@ -711,7 +711,9 @@ class ForecastPage(Screen):
                         orario = parola
 
         if orario == -1:
-            if "mattina" in frase:
+            if "notte" in frase:
+                orario = ["01:00", "04:00"]
+            elif "mattina" in frase:
                 orario = ["07:00", "10:00"]
             elif "pomeriggio" in frase:
                 orario = ["13:00", "16:00"]
