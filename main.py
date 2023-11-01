@@ -9,6 +9,7 @@ from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 import datetime
+import re
 from plyer import tts, stt
 
 
@@ -686,12 +687,17 @@ class ForecastPage(Screen):
         giorno = 0
         giorno_del_mese = None
 
-        if "l'una" in frase:
+        if "l'una di notte" in frase:
             orario = "01:00"
+        elif "l'una " in frase:
+            orario = "13:00"
         elif "mezzanotte" in frase:
             orario = "00:00"
         elif "mezzogiorno" in frase:
             orario = "12:00"
+
+        if orario == -1:
+            orario = self.check_pm_am(frase)
 
         if orario == -1:    # Faccio solo se l'orario non è ancora stato definito
             parole = frase.split(" ")
@@ -758,6 +764,22 @@ class ForecastPage(Screen):
                 
         return giorno, orario
 
+
+    # Funzione per capire se si sta usando l'orario con am e pm o no
+    def check_pm_am(self, frase):
+        pattern = re.compile(r"[0-9]+:[0-9]+ del pomeriggio", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+        
+        pattern = re.compile(r"[0-9]+:[0-9]+ di pomeriggio", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+        
+        pattern = re.compile(r"[0-9]+:[0-9]+ di sera", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+        
+        return -1
 
     # Funzione chiamata per controllare che si arrivi massimo a 4 (se passano più di 4 giorni non possiamo prevedere il tempo)
     def diffInDays(self, day):
