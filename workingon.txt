@@ -2,11 +2,6 @@ Test con persone ipovedenti e non
 
 (Magari aggiungere anche una gestione del tipo "Dalle ... alle ...")
 
-in mode normale dare gli exp tab per la giornata e in caso fare doppio tap
-per aggiungere altri exp table 
-Dato che metto solo gli exp tab della giornata richiesta fare in modo che vengano
-aggiornati con quelli nuovi ad ogni  (togliendo le inutili)
-
 Test del tap prolungato usando on_touch_down e on_touch_up
 (Presente in kivymd)
 
@@ -17,6 +12,8 @@ Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
 
 Gestire 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00, 11:00, 12:00, ... di pomeriggio/di sera ( c'è sia "pomeriggio" che un orario nella frase)
 
-Una volta entrato in forecast, alla richiesta che tempo fa questa sera non cambia giorno in "oggi
+Una volta entrato in forecast, alla richiesta che tempo fa QUESTA sera non cambia giorno in "oggi"
 
 Altri test con persone nuove
+
+https://github.com/KINGMOHIT/kingdroid/blob/main/tts.py#L57

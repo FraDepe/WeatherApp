@@ -40,7 +40,14 @@ PageManager:
         Button:
             text:""
             background_color: 0,0,0,0
-            on_touch_down: root.new_request() 
+            size_hint: 0.5, 1
+            pos_hint: {'x':0.5}
+            on_press: root.getWeek()
+        Button:
+            text:""
+            background_color: 0,0,0,0
+            size_hint: 0.5, 1
+            on_press: root.new_request()
         MDBoxLayout:
             orientation: 'vertical'
             md_bg_color: 59/255, 124/255, 222/255, 1
