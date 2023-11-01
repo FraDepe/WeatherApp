@@ -719,7 +719,7 @@ class ForecastPage(Screen):
                 orario = ["19:00", "22:00"]
 
         if giorno_del_mese == None or " giorni " in frase:
-            if "oggi" in frase:
+            if "oggi" in frase or " quest" in frase:
                 giorno = datetime.date.today().strftime("%A") 
             elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
                 giorno = (datetime.date.today() + datetime.timedelta(2)).strftime("%A")
@@ -1309,7 +1309,7 @@ class ForecastPageBlind(Screen):
                 orario = ["19:00", "22:00"]
 
         if giorno_del_mese == None or " giorni " in frase:
-            if "oggi" in frase:
+            if "oggi" in frase or " quest" in frase:
                 pass
             elif "dopodomani" in frase or "tra due giorni" in frase or "fra due giorni" in frase or "tra 2 giorni" in frase or "fra 2 giorni" in frase:
                 giorno = (datetime.date.today() + datetime.timedelta(2)).strftime("%A")
