@@ -1284,12 +1284,17 @@ class ForecastPageBlind(Screen):
         giorno = 0 #######
         giorno_del_mese = None
 
-        if "l'una" in frase:
+        if "l'una di notte" in frase:
             orario = "01:00"
+        elif "l'una " in frase:
+            orario = "13:00"
         elif "mezzanotte" in frase:
             orario = "00:00"
         elif "mezzogiorno" in frase:
             orario = "12:00"
+
+        if orario == -1:
+            orario = self.check_pm_am(frase)
 
         if orario == -1:    # Faccio solo se l'orario non è ancora stato definito
             parole = frase.split(" ")
@@ -1303,7 +1308,9 @@ class ForecastPageBlind(Screen):
                         orario = parola
 
         if orario == -1:
-            if "mattina" in frase:
+            if "notte" in frase:
+                orario = ["01:00", "04:00"]
+            elif "mattina" in frase:
                 orario = ["07:00", "10:00"]
             elif "pomeriggio" in frase:
                 orario = ["13:00", "16:00"]
@@ -1355,6 +1362,23 @@ class ForecastPageBlind(Screen):
                 giorno = -1
                 
         return giorno, orario
+
+
+    # Funzione per capire se si sta usando l'orario con am e pm o no
+    def check_pm_am(self, frase):
+        pattern = re.compile(r"[0-9]+:[0-9]+ del pomeriggio", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+
+        pattern = re.compile(r"[0-9]+:[0-9]+ di pomeriggio", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+
+        pattern = re.compile(r"[0-9]+:[0-9]+ di sera", re.IGNORECASE)
+        if pattern.search(frase) != None and int(pattern.search(frase).group(0).split(":")[0]) < 13:
+            return str(int(pattern.search(frase).group(0).split(":")[0]) + 12)+":"+pattern.search(frase).group(0).split(":")[1][:2]
+
+        return -1
 
 
     # Funzione che estrae la località richiesta

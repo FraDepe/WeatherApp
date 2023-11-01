@@ -1,7 +1,5 @@
 Test con persone ipovedenti e non
 
-(Magari aggiungere anche una gestione del tipo "Dalle ... alle ...")
-
 Test del tap prolungato usando on_touch_down e on_touch_up
 (Presente in kivymd)
 
@@ -9,10 +7,6 @@ Risposta alle domande specifiche?????
 (PIOVE domani?, Che TEMPERATURA fa?, ...)
 
 Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
-
-Gestire 01:00, 02:00, 03:00, 04:00, 05:00, 06:00, 07:00, 08:00, 09:00, 10:00, 11:00, 12:00, ... di pomeriggio/di sera ( c'è sia "pomeriggio" che un orario nella frase)
-
-Una volta entrato in forecast, alla richiesta che tempo fa QUESTA sera non cambia giorno in "oggi"
 
 Altri test con persone nuove
 
