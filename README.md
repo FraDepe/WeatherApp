@@ -1,5 +1,7 @@
 # WheaterApp
-Weather application based on [kivy](https://github.com/kivy)/[kivymd](https://github.com/kivymd/KivyMD), using the [OpenWeather](https://openweathermap.org/) weather forecast API service
+Weather application for the blind and visually impaired, developed with [kivy](https://github.com/kivy)/[kivymd](https://github.com/kivymd/KivyMD), and using the [OpenWeather](https://openweathermap.org/) weather forecast API service.
+
+Applicazione meteo per non vedenti e ipovedenti, sviluppata con [kivy](https://github.com/kivy)/[kivymd](https://github.com/kivymd/KivyMD), e utilizza il servizio API di previsioni di [OpenWeather](https://openweathermap.org/) 
  
 ## Requirements
 ### On smartphones:
