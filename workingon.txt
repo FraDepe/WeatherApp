@@ -6,8 +6,12 @@ Test del tap prolungato usando on_touch_down e on_touch_up
 Risposta alle domande specifiche?????
 (PIOVE domani?, Che TEMPERATURA fa?, ...)
 
-Specificare nella tesi il fatto che non ci sono app di questo tipo in giro
-
 Altri test con persone nuove
 
 https://github.com/KINGMOHIT/kingdroid/blob/main/tts.py#L57
+
+
+
+###################  TESI  ########################
+
+Inserire immagine per mostrare l'utilizzo del modulo re usato per la ricerca di regex
