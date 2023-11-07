@@ -1,25 +1,10 @@
+
 Risposta alle domande specifiche?????
 (PIOVE domani?, Che TEMPERATURA fa?, ...)
 
 https://github.com/KINGMOHIT/kingdroid/blob/main/tts.py#L57
 
 
-Dentro ForecastBlind dopo la trioraria dire "Premere di nuovo per le XX:XX o in alto per una nuova richiesta" 
-
-Aggiungere comando vocale "Indietro" in modalità non vedente
-
-Problema dell' andare indietro in forecast "In alto a sinistra er la richiesta fa andare sulla freccia"
-
-Premere a sinistra dell'icona o a destra dell'icona
-
-Ha chiesto domani in serata e poi nelle triorarie ha detto mercoledì dalle 10 (orario di ora)
-
-Aggiungere in "nottata"???
-
-
-
 ###################  TESI  ########################
-
-Inserire immagine per mostrare l'utilizzo del modulo re usato per la ricerca di regex
 
 Diagramma di flusso sulla TESI
